@@ -2,8 +2,14 @@ import {
     programFromPaths
 } from 'shader-util.js';
 
+import * as glMatrix from 'gl-matrix';
+
 function start() {
-    const canvas = document.getElementById('canvas');
+    console.log('start');
+    const mountPoint = document.getElementById('content');
+    const canvas = document.createElement('canvas');
+    mountPoint.appendChild(canvas);
+    
     canvas.width = 320;
     canvas.height = 240;
 
@@ -14,15 +20,16 @@ function start() {
 }
 
 async function run(canvas, gl) {
-    gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.viewport(0, 0, canvas.clientWidth, canvas.clientHeight);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
+    // Load default shader
     let defaultShader = await programFromPaths(
         gl,
         'shaders/default.glsl.vert',
         'shaders/default.glsl.frag'
-    );
+    );    
 }
 
-window.start = start;
+start();
