@@ -22,7 +22,7 @@ module.exports = {
             title: 'App',
             filename: 'index.html',
             excludeChunks: ['test'],
-            template: 'src/html/index.html',
+            template: 'src/html/template.ejs',
             inject: false,
             appMountId: 'content',
             mobile: true
@@ -31,7 +31,7 @@ module.exports = {
             title: 'App Test',
             filename: 'test.html',
             chunks: ['test'],
-            template: 'src/html/test.html',
+            template: 'src/html/template.ejs',
             inject: false,
             mobile: true
         })
