@@ -1,8 +1,14 @@
 import {
     programFromPaths
-} from 'shader-util.js';
+} from './shader-util.js';
 
 import * as glMatrix from 'gl-matrix';
+
+class App {
+    constructor(opts) {
+        
+    }
+}
 
 function start() {
     console.log('start');
@@ -32,4 +38,4 @@ async function run(canvas, gl) {
     );    
 }
 
-start();
+//start();

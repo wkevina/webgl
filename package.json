@@ -8,6 +8,8 @@
     "twgl.js": "^3.7.0"
   },
   "devDependencies": {
+    "babel-jest": "^21.2.0",
+    "babel-preset-env": "^1.6.0",
     "html-webpack-plugin": "",
     "jest": "^21.2.1",
     "webpack": "",
