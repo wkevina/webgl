@@ -1,5 +1,6 @@
-import App from '../src/js/app.js'
+import 'mocha/mocha.js'
+import 'mocha/mocha.css'
 
-test('App', ()=>{
-    App;
-});
+import 'chai/register-should'
+
+import './mocha.config.js'

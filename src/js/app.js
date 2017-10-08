@@ -1,19 +1,19 @@
-import {createProgram} from './shader-util.js';
+import {createProgram} from 'shader-util.js';
 
-import * as glMatrix from 'gl-matrix';
+//import * as glMatrix from 'gl-matrix';
 
 class App {
     constructor({el}) {
         if (typeof canvas === 'string') {
-            this.canvas = document.getElementById(el);            
+            this.canvas = document.getElementById(el);
         } else {
             this.canvas = el;
-        }    
-        
-        // create rendering context        
+        }
+
+        // create rendering context
         this.gl = this.canvas.getContext('webgl2');
     }
-    
+
     start() {
         console.log('start');
 
@@ -33,4 +33,4 @@ class App {
     }
 }
 
-export {App};
+export default App;
