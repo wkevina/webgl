@@ -15,4 +15,11 @@ describe('', function() {
         finch.should.equal(lib);
         canary.should.not.equal(lib);
     });
+
+    it('is different', function() {
+        let a = {};
+        let b = a;
+        a = {};
+        a.should.not.equal(b);
+    })
 });

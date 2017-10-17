@@ -11,13 +11,13 @@ import twgl from 'twgl.js';
 async function createProgram(gl, vertexShaderPath, fragmentShaderPath) {
     let vs = await fetch(vertexShaderPath);
     let fs = await fetch(fragmentShaderPath);
-    
+
     const args = [
-        vs.text(),
-        fs.text()
+        await vs.text(),
+        await fs.text()
     ];
-    
-    return twgl.createProgramInfo(gl, args);
+
+    return twgl.createProgramInfo(gl, args, null, null, err => { throw err });
 }
 
 export {createProgram};

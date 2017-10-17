@@ -1,8 +1,4 @@
-import sinon from 'sinon/lib/sinon.js';
 import {State, StateStack} from 'state-machine.js'
-import * as chai from 'chai';
-
-const should = chai.should();
 
 class TestState extends State {
     constructor() {

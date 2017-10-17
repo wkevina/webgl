@@ -1,5 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const webpack = require('webpack');
 const glob = require('glob');
 
@@ -8,7 +9,8 @@ module.exports = {
         app: './src/js/start.js',
         test: glob.sync('./test/**/*.test.js'),
         testconfig: './test/test.js',
-        run: './test/run.js'
+        testrun: './test/run.js',
+        sprite: './src/demo/sprite.js'
     },
     devtool: 'source-map',
     devServer: {
@@ -22,7 +24,12 @@ module.exports = {
             {
                 test: /\.css$/,
                 use: ['style-loader', 'css-loader']
-            }
+            },
+            // {
+            //     test: /\.js$/,
+            //     exclude: /node_modules/,
+            //     use: ['babel-loader']
+            // }
         ]
     },
     output: {
@@ -33,22 +40,44 @@ module.exports = {
         new HtmlWebpackPlugin({
             title: 'App',
             filename: 'index.html',
-            excludeChunks: ['test'],
+            chunks: [
+                'app', 'common', 'vendor'
+            ],
             template: 'src/html/template.ejs',
             inject: false,
             appMountId: 'content',
-            mobile: true
+            mobile: true,
+            scripts: ['common.js']
         }),
         new HtmlWebpackPlugin({
             title: 'App Test',
             filename: 'test.html',
-            chunks: ['testconfig', 'test', 'run'],
+            chunks: [
+                'testconfig', 'test', 'testrun', 'common', 'vendor'
+            ],
             template: 'src/html/template.ejs',
-            appMountIds: ['content', 'mocha'],
+            appMountIds: [
+                'content', 'mocha'
+            ],
             inject: false,
-            mobile: true,
-            scripts: ['common.js']
+            mobile: true
         }),
-        new webpack.optimize.CommonsChunkPlugin({name: 'common', filename: 'common.js', minChunks: 3})
+        new HtmlWebpackPlugin({
+            title: 'Sprite Demo',
+            filename: 'sprite.html',
+            chunks: [
+                'sprite', 'common', 'vendor'
+            ],
+            template: 'src/html/template.ejs',
+            appMountIds: ['content'],
+            inject: false,
+            mobile: true
+        }),
+        new webpack.optimize.CommonsChunkPlugin({name: 'common', minChunks: 2}),
+        new webpack.optimize.CommonsChunkPlugin({
+            name: 'vendor',
+            minChunks: ({resource}) => resource && resource.includes('node_modules') && resource.match(/\.js$/)
+        }),
+        //new BundleAnalyzerPlugin({analyzerMode: 'static'})
     ]
 };
