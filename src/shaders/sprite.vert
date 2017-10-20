@@ -1,6 +1,6 @@
 #version 300 es
 
-layout(location = 0) in vec2 a_position;
+layout(location = 0) in vec2 position;
 layout(location = 1) in vec2 a_vertex;
 layout(location = 2) in vec2 a_size;
 
@@ -24,6 +24,7 @@ Convert coordinates from world space to clip space
 
 void main() {
     //vec4 transformed_position = vec4(u_world * vec3(a_position + a_size * a_vertex, 1), 1);
-    vec4 transformed_position = vec4(a_position, 0, 1);
+    vec4 transformed_position = vec4(position, 0, 1);
+    vec2 whatever = a_vertex + a_size;
     gl_Position = transformed_position;
 }

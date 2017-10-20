@@ -1,8 +1,8 @@
 import {createProgram} from 'shader-util.js';
 import twgl from 'twgl.js';
 
-const POSITION_STRIDE = 2;
-const SIZE_STRIDE = 2;
+const POSITION_COMPONENTS = 2;
+const SIZE_COMPONENTS = 2;
 
 class SpriteRenderer {
     constructor(_gl, loader) {
@@ -26,17 +26,17 @@ class SpriteRenderer {
             vertex: {
                 data: this._vertices,
                 numComponents: 2,
-                divisor: 0
+                //divisor: 0
             },
             position: {
                 data: this._vertices,
-                numComponents: POSITION_STRIDE,
-                divisor: 1
+                numComponents: POSITION_COMPONENTS,
+                //divisor: 1
             },
             size: {
                 data: this._vertices,
-                numComponents: SIZE_STRIDE,
-                divisor: 1
+                numComponents: SIZE_COMPONENTS,
+                //divisor: 1
             },
             indices: {
                 data: [
@@ -56,16 +56,16 @@ class SpriteRenderer {
     }
 
     render(sprites) {
-        const positions = new Float32Array(POSITION_STRIDE * sprites.length);
-        const sizes = new Float32Array(SIZE_STRIDE * sprites.length);
+        const positions = new Float32Array(POSITION_COMPONENTS * sprites.length * 4);
+        const sizes = new Float32Array(SIZE_COMPONENTS * sprites.length * 4);
 
         sprites.forEach((sprite, spriteIndex) => {
             sprite.position.forEach((v, compIndex) => {
-                positions[spriteIndex * POSITION_STRIDE + compIndex] = v;
+                positions[spriteIndex * POSITION_COMPONENTS + compIndex] = v;
             });
 
             sprite.size.forEach((v, compIndex) => {
-                sizes[spriteIndex * SIZE_STRIDE + compIndex] = v;
+                sizes[spriteIndex * SIZE_COMPONENTS + compIndex] = v;
             })
         });
 
@@ -89,9 +89,9 @@ class SpriteRenderer {
             }
         );
 
-        twgl.setBuffersAndAttributes(this.gl, this.programInfo, this.vao);
+        twgl.setBuffersAndAttributes(this.gl, this.programInfo, this.bufferInfo);
 
-        twgl.drawBufferInfo(this.gl, this.vao);
+        twgl.drawBufferInfo(this.gl, this.bufferInfo);
 
         twgl;
     }

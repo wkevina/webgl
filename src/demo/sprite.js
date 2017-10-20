@@ -7,7 +7,7 @@ import '../css/app.css'
 const mountPoint = document.getElementById('content');
 const canvas = document.createElement('canvas');
 mountPoint.appendChild(canvas);
-const app = new App({el: canvas, debug: true});
+const app = new App({el: canvas, debug: false});
 app.start();
 
 const gl = app.gl;
