@@ -1,10 +1,10 @@
 #version 300 es
 
-layout(location = 0) in vec2 position;
-layout(location = 1) in vec2 a_vertex;
-layout(location = 2) in vec2 a_size;
+layout(location = 0) in vec2 vertex;
+layout(location = 1) in vec2 position;
+layout(location = 2) in vec2 size;
 
-uniform mat3 u_world;
+uniform mat4 projection;
 
 /*
 
@@ -23,8 +23,6 @@ Convert coordinates from world space to clip space
 */
 
 void main() {
-    //vec4 transformed_position = vec4(u_world * vec3(a_position + a_size * a_vertex, 1), 1);
-    vec4 transformed_position = vec4(position, 0, 1);
-    vec2 whatever = a_vertex + a_size;
+    vec4 transformed_position = projection * vec4(position + size * vertex, 0, 1);
     gl_Position = transformed_position;
 }

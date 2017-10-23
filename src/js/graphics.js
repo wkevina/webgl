@@ -1,63 +1,74 @@
 import {createProgram} from 'shader-util.js';
 import twgl from 'twgl.js';
+import {mat4} from 'gl-matrix';
 
 const POSITION_COMPONENTS = 2;
 const SIZE_COMPONENTS = 2;
 
+const SPRITE_RECT_VERTICES = new Float32Array([
+    -0.5, -0.5, // bottom left
+     0.5, -0.5, // bottom right
+    -0.5,  0.5, // top left
+     0.5,  0.5  // top right
+]);
+
+const GRID_VERTICES = new Float32Array([
+     0, 0, // bottom left
+     1, 0, // bottom right
+     0, 1, // top left
+     1, 1  // top right
+]);
+
 class SpriteRenderer {
-    constructor(_gl, loader) {
-        this.gl = _gl;
-        this._vertices = new Float32Array([
-            -0.5,
-            -0.5,
-            0.5,
-            -0.5,
-            0.5,
-            0.5,
-            -0.5,
-            0.5
-        ]);
-        this.programInfo = twgl.createProgramInfo(this.gl, [loader.get('shaders/sprite.vert'), loader.get('shaders/sprite.frag')]);
+    constructor(game) {
+        this.gl = game.gl;
+        this.loader = game.loader;
+        this.game = game;
         this.setup();
     }
 
     setup() {
+        this.programInfo = twgl.createProgramInfo(this.gl, [
+            this.loader.get('shaders/sprite.vert'),
+            this.loader.get('shaders/sprite.frag')
+        ]);
+
         this._arrays = {
             vertex: {
-                data: this._vertices,
+                data: SPRITE_RECT_VERTICES,
                 numComponents: 2,
-                //divisor: 0
+                divisor: 0,
+                drawType: this.gl.STATIC_DRAW
             },
             position: {
-                data: this._vertices,
+                //data: SPRITE_RECT_VERTICES,
                 numComponents: POSITION_COMPONENTS,
-                //divisor: 1
+                divisor: 1,
+                drawType: this.gl.DYNAMIC_DRAW
             },
             size: {
-                data: this._vertices,
+                //data: SPRITE_RECT_VERTICES,
                 numComponents: SIZE_COMPONENTS,
-                //divisor: 1
+                divisor: 1,
+                drawType: this.gl.DYNAMIC_DRAW
             },
             indices: {
                 data: [
                     0,
                     1,
                     2,
-                    2,
-                    3,
-                    0
+                    3
                 ]
             }
         }
 
         this.bufferInfo = twgl.createBufferInfoFromArrays(this.gl, this._arrays);
         this.vao = twgl.createVertexArrayInfo(this.gl, this.programInfo, this.bufferInfo);
-        this.vao;
     }
 
     render(sprites) {
-        const positions = new Float32Array(POSITION_COMPONENTS * sprites.length * 4);
-        const sizes = new Float32Array(SIZE_COMPONENTS * sprites.length * 4);
+        const positions = new Float32Array(POSITION_COMPONENTS * sprites.length);
+        const sizes = new Float32Array(SIZE_COMPONENTS * sprites.length);
 
         sprites.forEach((sprite, spriteIndex) => {
             sprite.position.forEach((v, compIndex) => {
@@ -83,18 +94,111 @@ class SpriteRenderer {
 
         this.gl.useProgram(this.programInfo.program);
 
-        twgl.setUniforms(this.programInfo,
-            {
-                u_world: twgl.m4.identity()
-            }
-        );
+        twgl.setUniforms(this.programInfo, {
+            projection: this.game.projection
+        });
 
-        twgl.setBuffersAndAttributes(this.gl, this.programInfo, this.bufferInfo);
-
-        twgl.drawBufferInfo(this.gl, this.bufferInfo);
-
-        twgl;
+        twgl.setBuffersAndAttributes(this.gl, this.programInfo, this.vao);
+        twgl.drawBufferInfo(this.gl, this.vao, this.gl.TRIANGLE_STRIP, undefined, undefined, sprites.length);
     }
 }
 
-export {SpriteRenderer};
+function makeGridVertices({xcells, ycells}, {w, h}, {lineWidth}) {
+    const position = new Float32Array(2 * (xcells + ycells));
+    const size = new Float32Array(2 * (xcells + ycells));
+    const width = w * (xcells + 1);
+    const height = h * (ycells + 1);
+
+    for (let row = 0; row < ycells; ++row) {
+        position[2*row]     = 0;     // pos x
+        position[2*row + 1] = row*h; // pos y
+        size[2*row]     = width;     // line length
+        size[2*row + 1] = lineWidth; // line thickness
+    }
+
+    for (let col = 0; col < xcells; ++col) {
+        position[2*ycells + 2*col]     = col*w; // pos x
+        position[2*ycells + 2*col + 1] = 0;     // pos y
+        size[2*ycells + 2*col]     = lineWidth; // line length
+        size[2*ycells + 2*col + 1] = height;    // line thickness
+    }
+
+    return {
+        position,
+        size
+    }
+}
+
+class GridOutline {
+    constructor(game) {
+        this.game = game;
+        this.gl = game.gl;
+
+        this.programInfo = twgl.createProgramInfo(this.gl, [
+            this.game.loader.get('shaders/grid.vert'),
+            this.game.loader.get('shaders/grid.frag')
+        ]);
+
+        this.bufferInfo = twgl.createBufferInfoFromArrays(this.gl, {
+            vertex: {
+                data: GRID_VERTICES,
+                numComponents: 2,
+                divisor: 0,
+                drawType: this.gl.STATIC_DRAW
+            },
+            position: {
+                numComponents: 2,
+                divisor: 1,
+                drawType: this.gl.DYNAMIC_DRAW
+            },
+            size: {
+                numComponents: 2,
+                divisor: 1,
+                drawType: this.gl.DYNAMIC_DRAW
+            },
+            indices: {
+                data: [
+                    0,
+                    1,
+                    2,
+                    3
+                ]
+            }
+        });
+
+        this.vao = twgl.createVertexArrayInfo(this.gl, this.programInfo, this.bufferInfo);
+    }
+
+    render(sx = 32, sy = 32, lineColor = [1,1,1,1], lineWidth = 2) {
+        this.gl.useProgram(this.programInfo.program);
+
+        twgl.setUniforms(this.programInfo, {
+            projection: this.game.projection,
+            line_color: lineColor
+        });
+
+        twgl.setBuffersAndAttributes(this.gl, this.programInfo, this.vao);
+
+        const xcells = Math.floor(this.game.resolution.width / sx);
+        const ycells = Math.floor(this.game.resolution.height / sy);
+        const instanceCount = xcells + ycells;
+
+        const {position, size} = makeGridVertices({xcells, ycells}, {w: sx, h: sy}, {lineWidth: lineWidth});
+
+        twgl.setAttribInfoBufferFromArray(
+            this.gl,
+            this.bufferInfo.attribs.position,
+            position
+        );
+
+        twgl.setAttribInfoBufferFromArray(
+            this.gl,
+            this.bufferInfo.attribs.size,
+            size
+        );
+
+        twgl.drawBufferInfo(this.gl, this.vao, this.gl.TRIANGLE_STRIP, undefined, undefined, instanceCount);
+    }
+}
+
+export {SpriteRenderer, GridOutline};

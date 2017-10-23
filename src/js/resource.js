@@ -1,25 +1,55 @@
+import twgl from 'twgl.js';
+import {gl} from 'gl.js';
+
+function getGl() {
+    return gl;
+}
+
+function createTextures(opts) {
+    return new Promise(function(resolve, reject) {
+        twgl.createTextures(gl, opts, function(errors, textures, images) {
+            resolve({errors, textures, images});
+        });
+    });
+}
+
 class Loader {
-    constructor({basePath, paths, raiseOnFailure}) {
-        this.basePath = basePath || '';
-        this.raiseOnFailure = raiseOnFailure;
+    constructor(opts) {
         this.cache = new Map();
+        this.textureCache = new Map();
         this.errors = new Map();
         this.loading = null;
-        this.load(paths || []);
+        this.load(opts);
     }
 
-    load(paths) {
-        this.loading = new Promise(async(resolve, reject) => {
-            for (let path of paths) {
-                const key = this.basePath + path;
-                const req = await fetch(key);
-                if (req.ok) {
-                    this.cache.set(key, await req.text());
-                } else if (this.raiseOnFailure) {
-                    throw `failed to fetch resource '${key}'; got status ${req.status} '${req.statusText}'`;
-                } else {
-                    this.errors.set(key, req.statusText);
+    load({basePath, paths, raiseOnFailure, textures} = {basePath: '', paths: []}) {
+        this.loading = new Promise(async (resolve, reject) => {
+            const alreadyLoading = this.loading;
+
+            if (paths) {
+                for (let path of paths) {
+                    const key = basePath + path;
+                    const req = await fetch(key);
+                    if (req.ok) {
+                        this.cache.set(key, await req.text());
+                    } else if (raiseOnFailure) {
+                        throw `failed to fetch resource '${key}'; got status ${req.status} '${req.statusText}'`;
+                    } else {
+                        this.errors.set(key, req.statusText);
+                    }
                 }
+            }
+
+            if (textures) {
+                let {errors, textures: tex, images} = await createTextures(textures);
+                console.log(errors);
+                Object.keys(tex).forEach((key) => {
+                    this.textureCache.set(key, tex[key]);
+                });
+            }
+
+            if (alreadyLoading) {
+                await alreadyLoading;
             }
 
             resolve(this);

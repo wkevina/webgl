@@ -19,7 +19,7 @@ body {
     justify-content: center;
 }
 
-canvas#canvas {
-    width: 640px;
-    height: 480px;
+canvas.game {
+    width: 100vw;
+    height: 100vh;
 }
