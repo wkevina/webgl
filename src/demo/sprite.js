@@ -20,7 +20,11 @@ app.load({
 app.load({
     basePath: 'img/',
     textures: {
-        sonic: 'Sonic1.gif'
+        sonic: {
+            src: 'img/Sonic1.gif',
+            mag: app.gl.NEAREST,
+            min: app.gl.LINEAR
+        }
     }
 });
 
@@ -47,9 +51,9 @@ async function run() {
         app.adjustViewport();
         app.clear();
         renderer.render(sprites);
-        grid.render( 8,  8, [0.0,0.5,1,0.2], 0.1);
-        grid.render(16, 16, [0,1,0,0.2], 0.15);
-        grid.render(32, 32, [1,0,0,0.2], 0.2);
+        grid.render( 8,  8, [0.0,0.1,0.4,0.2], 0.25);
+        grid.render(16, 16, [0,0.5,0,0.2], 0.25);
+        grid.render(32, 32, [1,0,0,0.2], 0.25);
         requestAnimationFrame(render);
     });
 }

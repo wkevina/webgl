@@ -52,6 +52,12 @@ class SpriteRenderer {
                 divisor: 1,
                 drawType: this.gl.DYNAMIC_DRAW
             },
+            texcoord: {
+                data: [0, 0, 20, 0, 0, 40, 20, 40],
+                numComponents: 2,
+                divisor: 0,
+                type: Int16Array
+            },
             indices: {
                 data: [
                     0,
@@ -64,6 +70,8 @@ class SpriteRenderer {
 
         this.bufferInfo = twgl.createBufferInfoFromArrays(this.gl, this._arrays);
         this.vao = twgl.createVertexArrayInfo(this.gl, this.programInfo, this.bufferInfo);
+
+        this.texture = this.loader.getTexture('sonic');
     }
 
     render(sprites) {
@@ -95,7 +103,8 @@ class SpriteRenderer {
         this.gl.useProgram(this.programInfo.program);
 
         twgl.setUniforms(this.programInfo, {
-            projection: this.game.projection
+            projection: this.game.projection,
+            texture: this.texture
         });
 
         twgl.setBuffersAndAttributes(this.gl, this.programInfo, this.vao);

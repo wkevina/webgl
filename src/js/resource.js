@@ -23,9 +23,7 @@ class Loader {
     }
 
     load({basePath, paths, raiseOnFailure, textures} = {basePath: '', paths: []}) {
-        this.loading = new Promise(async (resolve, reject) => {
-            const alreadyLoading = this.loading;
-
+        const loadPromise = new Promise(async (resolve, reject) => {
             if (paths) {
                 for (let path of paths) {
                     const key = basePath + path;
@@ -42,24 +40,28 @@ class Loader {
 
             if (textures) {
                 let {errors, textures: tex, images} = await createTextures(textures);
-                console.log(errors);
+                if (errors) {
+                    console.log(errors);
+                }
                 Object.keys(tex).forEach((key) => {
                     this.textureCache.set(key, tex[key]);
                 });
             }
 
-            if (alreadyLoading) {
-                await alreadyLoading;
-            }
-
             resolve(this);
         });
+
+        this.loading = this.loading ? this.loading.then(res => loadPromise) : loadPromise;
 
         return this.loading;
     }
 
     get(path) {
         return this.cache.get(path);
+    }
+
+    getTexture(name) {
+        return this.textureCache.get(name);
     }
 }
 
