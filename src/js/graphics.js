@@ -53,7 +53,14 @@ class SpriteRenderer {
                 drawType: this.gl.DYNAMIC_DRAW
             },
             texcoord: {
-                data: [0, 0, 20, 0, 0, 40, 20, 40],
+                data: [0, 734-80, 40, 734-80, 0, 734, 40, 734],
+                //data: [0, 0, 40, 0, 0, 80, 40, 80],
+                // data: [
+                //     0, 0,
+                //     300, 0,
+                //     0, 734,
+                //     300, 734
+                // ],
                 numComponents: 2,
                 divisor: 0,
                 type: Int16Array

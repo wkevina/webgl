@@ -23,7 +23,8 @@ app.load({
         sonic: {
             src: 'img/Sonic1.gif',
             mag: app.gl.NEAREST,
-            min: app.gl.LINEAR
+            min: app.gl.LINEAR,
+            flipY: true
         }
     }
 });
@@ -44,7 +45,7 @@ async function run() {
     // }
 
     sprites.push(
-        new Sprite([10, 20], [20, 40])
+        new Sprite([20, 40], [40, 80])
     );
 
     requestAnimationFrame(function render() {
