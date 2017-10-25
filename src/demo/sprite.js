@@ -8,7 +8,15 @@ const mountPoint = document.getElementById('content');
 const canvas = document.createElement('canvas');
 canvas.classList.add('game')
 mountPoint.appendChild(canvas);
-const app = new App({el: canvas, debug: false, clearColor: [0.1, 0.1, 0.1, 1]});
+const app = new App({
+    el: canvas,
+    resolution: {
+        width: 640,
+        height: 480
+    },
+    debug: false,
+    clearColor: [0.1, 0.1, 0.1, 1]
+});
 app.start();
 
 app.load({
@@ -45,16 +53,19 @@ async function run() {
     // }
 
     sprites.push(
-        new Sprite([20, 40], [40, 80])
+        new Sprite({
+            position: [10, 10],
+            size: [300, 734]
+        })
     );
 
     requestAnimationFrame(function render() {
         app.adjustViewport();
         app.clear();
         renderer.render(sprites);
-        grid.render( 8,  8, [0.0,0.1,0.4,0.2], 0.25);
-        grid.render(16, 16, [0,0.5,0,0.2], 0.25);
-        grid.render(32, 32, [1,0,0,0.2], 0.25);
+        grid.render( 8,  8, [0.4, 0.1, 0.9, 0.4], 0.25);
+        grid.render(16, 16, [0.1, 0.3, 0.9, 0.4], 0.5);
+        grid.render(32, 32, [0,   0.5, 0.9, 0.5], 1);
         requestAnimationFrame(render);
     });
 }

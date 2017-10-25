@@ -6,10 +6,10 @@ const POSITION_COMPONENTS = 2;
 const SIZE_COMPONENTS = 2;
 
 const SPRITE_RECT_VERTICES = new Float32Array([
-    -0.5, -0.5, // bottom left
-     0.5, -0.5, // bottom right
-    -0.5,  0.5, // top left
-     0.5,  0.5  // top right
+    0, 0, // bottom left
+    1, 0, // bottom right
+    0, 1, // top left
+    1, 1  // top right
 ]);
 
 const GRID_VERTICES = new Float32Array([
@@ -42,25 +42,31 @@ class SpriteRenderer {
             },
             position: {
                 //data: SPRITE_RECT_VERTICES,
-                numComponents: POSITION_COMPONENTS,
+                numComponents: 2,
+                divisor: 1,
+                drawType: this.gl.DYNAMIC_DRAW
+            },
+            offset: {
+                //data: SPRITE_RECT_VERTICES,
+                numComponents: 2,
                 divisor: 1,
                 drawType: this.gl.DYNAMIC_DRAW
             },
             size: {
                 //data: SPRITE_RECT_VERTICES,
-                numComponents: SIZE_COMPONENTS,
+                numComponents: 2,
                 divisor: 1,
                 drawType: this.gl.DYNAMIC_DRAW
             },
             texcoord: {
-                data: [0, 734-80, 40, 734-80, 0, 734, 40, 734],
+                //data: [0, 734-80, 40, 734-80, 0, 734, 40, 734],
                 //data: [0, 0, 40, 0, 0, 80, 40, 80],
-                // data: [
-                //     0, 0,
-                //     300, 0,
-                //     0, 734,
-                //     300, 734
-                // ],
+                data: [
+                    0, 0,
+                    300, 0,
+                    0, 734,
+                    300, 734
+                ],
                 numComponents: 2,
                 divisor: 0,
                 type: Int16Array
@@ -82,17 +88,22 @@ class SpriteRenderer {
     }
 
     render(sprites) {
-        const positions = new Float32Array(POSITION_COMPONENTS * sprites.length);
-        const sizes = new Float32Array(SIZE_COMPONENTS * sprites.length);
+        const positions = new Float32Array(2 * sprites.length);
+        const sizes = new Float32Array(2 * sprites.length);
+        const offsets = new Float32Array(2 * sprites.length);
 
         sprites.forEach((sprite, spriteIndex) => {
             sprite.position.forEach((v, compIndex) => {
-                positions[spriteIndex * POSITION_COMPONENTS + compIndex] = v;
+                positions[spriteIndex*2 + compIndex] = v;
             });
 
             sprite.size.forEach((v, compIndex) => {
-                sizes[spriteIndex * SIZE_COMPONENTS + compIndex] = v;
-            })
+                sizes[spriteIndex*2 + compIndex] = v;
+            });
+
+            sprite.offset.forEach((v, compIndex) => {
+                offsets[spriteIndex*2 + compIndex] = v;
+            });
         });
 
         twgl.setAttribInfoBufferFromArray(
@@ -105,6 +116,12 @@ class SpriteRenderer {
             this.gl,
             this.bufferInfo.attribs.size,
             sizes
+        );
+
+        twgl.setAttribInfoBufferFromArray(
+            this.gl,
+            this.bufferInfo.attribs.offset,
+            offsets
         );
 
         this.gl.useProgram(this.programInfo.program);

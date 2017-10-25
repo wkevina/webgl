@@ -1,7 +1,7 @@
 import {Loader} from 'resource.js';
 import {createProgram} from 'shader-util.js';
 import {mat4} from 'gl-matrix';
-import {registerContext} from 'gl.js';
+import {registerContext, gl} from 'gl.js';
 import twgl from 'twgl.js';
 import 'vendor/webgl-debug.js'
 
@@ -32,6 +32,9 @@ class App {
             WebGLDebugUtils.init(this.gl);
             this.gl = WebGLDebugUtils.makeDebugContext(this.gl, undefined, logGLCall);
         }
+
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        gl.enable(gl.BLEND);
 
         this.clearColor = clearColor || [0.4, 0.4, 0.4, 1];
         this.resolution = resolution || {width: 352, height: 224};
