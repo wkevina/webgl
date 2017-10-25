@@ -65,7 +65,7 @@ async function run() {
         renderer.render(sprites);
         grid.render( 8,  8, [0.4, 0.1, 0.9, 0.4], 0.25);
         grid.render(16, 16, [0.1, 0.3, 0.9, 0.4], 0.5);
-        grid.render(32, 32, [0,   0.5, 0.9, 0.5], 1);
+        grid.render(32, 32, [0,   0.5, 0.9, 0.3], 1);
         requestAnimationFrame(render);
     });
 }
