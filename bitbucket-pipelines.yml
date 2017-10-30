@@ -6,6 +6,7 @@ pipelines:
         caches:
           - node
         script: # Modify the commands below to build your repository.
+          - apk add --update curl
           - yarn install
           - yarn run webpack
           - export DIST_NAME=${BITBUCKET_BRANCH}_${BITBUCKET_COMMIT}.tar.gz
