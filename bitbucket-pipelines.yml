@@ -1,0 +1,12 @@
+image: node:alpine
+
+pipelines:
+  default:
+    - step:
+        caches:
+          - node
+        script: # Modify the commands below to build your repository.
+          - yarn install
+          - yarn run webpack
+          - export DIST_NAME=${BITBUCKET_BRANCH}_${BITBUCKET_COMMIT}.tar.gz
+          - tar czf $DIST_NAME -C dist .
