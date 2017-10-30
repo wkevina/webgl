@@ -28,10 +28,7 @@ class SpriteRenderer {
     }
 
     setup() {
-        this.programInfo = twgl.createProgramInfo(this.gl, [
-            this.loader.get('shaders/sprite.vert'),
-            this.loader.get('shaders/sprite.frag')
-        ]);
+        this.programInfo = this.game.getProgram('sprite');
 
         this._arrays = {
             vertex: {
@@ -167,10 +164,7 @@ class GridOutline {
         this.game = game;
         this.gl = game.gl;
 
-        this.programInfo = twgl.createProgramInfo(this.gl, [
-            this.game.loader.get('shaders/grid.vert'),
-            this.game.loader.get('shaders/grid.frag')
-        ]);
+        this.programInfo = this.game.getProgram('grid');
 
         this.bufferInfo = twgl.createBufferInfoFromArrays(this.gl, {
             vertex: {
@@ -234,4 +228,52 @@ class GridOutline {
     }
 }
 
-export {SpriteRenderer, GridOutline};
+class TilemapRenderer {
+    constructor({
+        /*
+        tilemap {
+            width: width in tiles
+            height: height in tiles
+            tileWidth: tile width in pixels
+            tileHeight: tile height in pixels
+            tileset {
+                texture_array: webgl texture handle
+            }
+        }
+        */
+        tilemap,
+        game
+    }) {
+        this.tilemap = tilemap;
+        this.game = game;
+
+        this.tileWidth = this.tilemap.tileWidth;
+        this.tileHeight = this.tilemap.tileHeight;
+
+        this.programInfo = this.game.getProgram('tilemap');
+    }
+
+    draw({x, y, width, height}) {
+        const tileCount = {
+            x: Math.floor(width / this.tileWidth) + 1,
+            y: Math.floor(height / this.tileHeight) + 1
+        }
+
+        const startIndex = {
+            x: Math.floor(x / this.tileWidth),
+            y: Math.floor(y / this.tileHeight)
+        }
+
+        const offset = { x, y };
+
+        if (x > 0) {
+            offset.x = -(x % this.tileWidth);
+        }
+
+        if (y > 0) {
+            offset.y = -(y % this.tileHeight);
+        }
+    }
+}
+
+export {SpriteRenderer, TilemapRenderer, GridOutline};

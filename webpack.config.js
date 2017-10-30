@@ -10,7 +10,8 @@ module.exports = {
         test: glob.sync('./test/**/*.test.js'),
         testconfig: './test/test.js',
         testrun: './test/run.js',
-        sprite: './src/demo/sprite.js'
+        sprite: './src/demo/sprite.js',
+        tilemap: './src/demo/tilemap.js'
     },
     devtool: 'source-map',
     devServer: {
@@ -67,6 +68,17 @@ module.exports = {
             filename: 'sprite.html',
             chunks: [
                 'sprite', 'common', 'vendor'
+            ],
+            template: 'src/html/template.ejs',
+            appMountIds: ['content'],
+            inject: false,
+            mobile: true
+        }),
+        new HtmlWebpackPlugin({
+            title: 'Tilemap Demo',
+            filename: 'tilemap.html',
+            chunks: [
+                'tilemap', 'common', 'vendor'
             ],
             template: 'src/html/template.ejs',
             appMountIds: ['content'],

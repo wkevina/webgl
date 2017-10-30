@@ -79,6 +79,16 @@ class App {
     load(paths) {
         return this.loader.load(paths);
     }
+
+    getProgram(key) {
+        const ret = this.loader.getProgram(key);
+
+        if (!ret) {
+            throw `No program loaded for key '${key}'`;
+        }
+
+        return ret;
+    }
 }
 
 export default App;

@@ -6,7 +6,8 @@
   "dependencies": {
     "gl-matrix": "",
     "global": "^4.3.2",
-    "twgl.js": "^3.7.0"
+    "twgl.js": "^3.7.0",
+    "underscore": "^1.8.3"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",

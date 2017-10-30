@@ -8,6 +8,7 @@ const mountPoint = document.getElementById('content');
 const canvas = document.createElement('canvas');
 canvas.classList.add('game')
 mountPoint.appendChild(canvas);
+
 const app = new App({
     el: canvas,
     resolution: {
@@ -17,13 +18,19 @@ const app = new App({
     debug: false,
     clearColor: [0.1, 0.1, 0.1, 1]
 });
+
 app.start();
+
+// app.load({
+//     basePath: 'shaders/',
+//     paths: ['sprite.frag', 'sprite.vert',
+//             'grid.frag', 'grid.vert']
+// });
 
 app.load({
     basePath: 'shaders/',
-    paths: ['sprite.frag', 'sprite.vert',
-            'grid.frag', 'grid.vert']
-});
+    programs: ['sprite', 'grid', 'tilemap']
+})
 
 app.load({
     basePath: 'img/',
@@ -36,6 +43,8 @@ app.load({
         }
     }
 });
+
+console.log(app.gl.getParameter(app.gl.MAX_ARRAY_TEXTURE_LAYERS));
 
 async function run() {
     await app.loader.loading;
