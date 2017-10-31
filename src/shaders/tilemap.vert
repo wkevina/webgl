@@ -2,8 +2,8 @@
 
 layout(location = 0) in vec2 vertex;
 layout(location = 1) in vec3 position;
-layout(location = 2) in ivec2 texcoord;
-layout(location = 3) in int image;
+layout(location = 2) in vec2 texcoord;
+layout(location = 3) in int layer;
 
 out vec2 v_tex_coord;
 flat out int v_layer;
@@ -29,6 +29,6 @@ Convert coordinates from world space to clip space
 void main() {
     vec4 transformed_position = projection * vec4(position + vec3(vertex, 0), 1);
     gl_Position = transformed_position;
-    v_tex_coord = vec2(texcoord);
-    v_layer = image;
+    v_tex_coord = texcoord;
+    v_layer = layer;
 }

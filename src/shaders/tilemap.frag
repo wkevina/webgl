@@ -9,6 +9,7 @@ in vec2 v_tex_coord;
 flat in int v_layer;
 
 uniform highp sampler2DArray texture;
+uniform lowp vec2 tile_size;
 
 void main() {
     out_color = texelFetch(texture, ivec3(v_tex_coord, v_layer), 0);

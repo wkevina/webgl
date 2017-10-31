@@ -229,28 +229,88 @@ class GridOutline {
 }
 
 class TilemapRenderer {
+    /*
+    tilemap = {
+        width: width in tiles
+        height: height in tiles
+        tileWidth: tile width in pixels
+        tileHeight: tile height in pixels
+    }
+    */
     constructor({
-        /*
-        tilemap {
-            width: width in tiles
-            height: height in tiles
-            tileWidth: tile width in pixels
-            tileHeight: tile height in pixels
-            tileset {
-                texture_array: webgl texture handle
-            }
-        }
-        */
         tilemap,
-        game
+        game,
+        texture_array
     }) {
         this.tilemap = tilemap;
         this.game = game;
+        this.gl = game.gl;
+        this.texture_array = texture_array;
 
         this.tileWidth = this.tilemap.tileWidth;
         this.tileHeight = this.tilemap.tileHeight;
 
         this.programInfo = this.game.getProgram('tilemap');
+
+        this.setup();
+    }
+
+    setup() {
+        const bufferInfo = twgl.createBufferInfoFromArrays(this.gl, {
+            /* Per-vertex attributes common to each instance. */
+            vertex: {
+                data: GRID_VERTICES,
+                numComponents: 2,
+                divisor: 0,
+                drawType: this.gl.STATIC_DRAW
+            },
+            texcoord: {
+                data: [
+                    0, 0,
+                    this.tileWidth, 0,
+                    0, this.tileHeight,
+                    this.tileWidth, this.tileHeight
+                ],
+                numComponents: 2,
+                divisor: 0,
+                drawType: this.gl.STATIC_DRAW
+            },
+            /* Attributes shared by each vertex in an instance. Updated dynamically. */
+            position: {
+                numComponents: 3,
+                divisor: 1,
+                drawType: this.gl.DYNAMIC_DRAW
+            },
+
+            layer: {
+                numComponents: 1,
+                divisor: 1,
+                drawType: this.gl.DYNAMIC_DRAW,
+                type: Int16Array
+            }
+            indices: {
+                data: [
+                    0,
+                    1,
+                    2,
+                    3
+                ]
+            }
+        });
+
+        this.arrays = {
+            position: new Float32Array(2 * this.maxCells())
+        };
+
+        this.vao = twgl.createVertexArrayInfo(this.gl, this.programInfo, this.bufferInfo);
+    }
+
+    /* Returns maximum number of cells that could be rendered. If the display
+    is tw and th tiles wide and high, respectively, the value returned is
+    (tw + 1) * (th + 1) */
+    maxCells() {
+        const {width, height} = this.game.resolution;
+        return (Math.floor(width / this.tileWidth) + 1) * (Math.floor(height / this.tileHeight) + 1);
     }
 
     draw({x, y, width, height}) {
