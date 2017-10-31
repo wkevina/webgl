@@ -10,6 +10,6 @@ pipelines:
           - yarn install
           - yarn run webpack
           - cp -r src/* dist
-          - export DIST_NAME=${BITBUCKET_BRANCH}_${BITBUCKET_COMMIT}.tar.gz
+          - export DIST_NAME=../${BITBUCKET_BRANCH}_${BITBUCKET_COMMIT}.tar.gz
           - tar czf $DIST_NAME -C dist .
-          - curl -X POST --user "${BB_AUTH_STRING}" "https://api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/downloads" --form files=@"$DIST_NAME"
+          - curl -X POST --user "${BB_AUTH_STRING}" "https://api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/downloads" --form files=@"../$DIST_NAME"
