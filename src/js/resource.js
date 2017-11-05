@@ -98,7 +98,11 @@ class Loader {
     }
 
     getTexture(name) {
-        return this.textureCache.get(name);
+        const ret = this.textureCache.get(name);
+        if (ret === undefined) {
+            raise `No texture value for key ${path}`;
+        }
+        return ret;
     }
 
     getProgram(name) {

@@ -194,37 +194,55 @@ class GridOutline {
         });
 
         this.vao = twgl.createVertexArrayInfo(this.gl, this.programInfo, this.bufferInfo);
+
+        this.grids = [];
     }
 
-    render(sx = 32, sy = 32, lineColor = [1,1,1,1], lineWidth = 2) {
-        this.gl.useProgram(this.programInfo.program);
-
-        twgl.setUniforms(this.programInfo, {
-            projection: this.game.projection,
-            line_color: lineColor
-        });
-
-        twgl.setBuffersAndAttributes(this.gl, this.programInfo, this.vao);
-
+    addGrid(sx = 32, sy = 32, lineColor = [1,1,1,1], lineWidth = 2) {
         const xcells = Math.floor(this.game.resolution.width / sx);
         const ycells = Math.floor(this.game.resolution.height / sy);
         const instanceCount = xcells + ycells;
 
         const {position, size} = makeGridVertices({xcells, ycells}, {w: sx, h: sy}, {lineWidth: lineWidth});
 
-        twgl.setAttribInfoBufferFromArray(
-            this.gl,
-            this.bufferInfo.attribs.position,
-            position
-        );
+        this.grids.push({
+            position,
+            size,
+            instanceCount,
+            lineColor
+        })
+    }
 
-        twgl.setAttribInfoBufferFromArray(
-            this.gl,
-            this.bufferInfo.attribs.size,
-            size
-        );
+    render() {
+        this.gl.useProgram(this.programInfo.program);
 
-        twgl.drawBufferInfo(this.gl, this.vao, this.gl.TRIANGLE_STRIP, undefined, undefined, instanceCount);
+        twgl.setUniforms(this.programInfo, {
+            projection: this.game.projection
+        });
+
+        twgl.setBuffersAndAttributes(this.gl, this.programInfo, this.vao);
+
+        this.grids.forEach(gridInfo => {
+            const {position, size, instanceCount, lineColor} = gridInfo;
+
+            twgl.setAttribInfoBufferFromArray(
+                this.gl,
+                this.bufferInfo.attribs.position,
+                position
+            );
+
+            twgl.setAttribInfoBufferFromArray(
+                this.gl,
+                this.bufferInfo.attribs.size,
+                size
+            );
+
+            twgl.setUniforms(this.programInfo, {
+                line_color: lineColor
+            });
+
+            twgl.drawBufferInfo(this.gl, this.vao, this.gl.TRIANGLE_STRIP, undefined, undefined, instanceCount);
+        });
     }
 }
 
