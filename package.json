@@ -14,6 +14,7 @@
     "babel-jest": "^21.2.0",
     "babel-loader": "^7.1.2",
     "babel-preset-env": "^1.6.0",
+    "babel-preset-modern-browsers": "^10.0.1",
     "chai": "^4.1.2",
     "css-loader": "^0.28.7",
     "html-webpack-plugin": "",
@@ -24,7 +25,7 @@
     "style-loader": "^0.19.0",
     "webpack": "^3.7.1",
     "webpack-bundle-analyzer": "^2.9.0",
-    "webpack-dev-server": ""
+    "webpack-dev-server": "*"
   },
   "scripts": {
     "test": "jest --coverage",

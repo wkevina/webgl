@@ -11,7 +11,8 @@ module.exports = {
         testconfig: './test/test.js',
         testrun: './test/run.js',
         sprite: './src/demo/sprite.js',
-        tilemap: './src/demo/tilemap.js'
+        tilemap: './src/demo/tilemap.js',
+        particle: './src/demo/particle.js'
     },
     devtool: 'source-map',
     devServer: {
@@ -26,11 +27,11 @@ module.exports = {
                 test: /\.css$/,
                 use: ['style-loader', 'css-loader']
             },
-            // {
-            //     test: /\.js$/,
-            //     exclude: /node_modules/,
-            //     use: ['babel-loader']
-            // }
+            {
+                test: /\.js$/,
+                exclude: [/node_modules/, /src\/js\/vendor/],
+                use: ['babel-loader']
+            }
         ]
     },
     output: {
@@ -79,6 +80,17 @@ module.exports = {
             filename: 'tilemap.html',
             chunks: [
                 'tilemap', 'common', 'vendor'
+            ],
+            template: 'src/html/template.ejs',
+            appMountIds: ['content'],
+            inject: false,
+            mobile: true
+        }),
+        new HtmlWebpackPlugin({
+            title: 'Particle Demo',
+            filename: 'particle.html',
+            chunks: [
+                'particle', 'common', 'vendor'
             ],
             template: 'src/html/template.ejs',
             appMountIds: ['content'],

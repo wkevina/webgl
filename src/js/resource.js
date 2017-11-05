@@ -1,3 +1,4 @@
+import {_} from 'underscore'
 import twgl from 'twgl.js';
 import {gl} from 'gl.js';
 
@@ -29,7 +30,15 @@ class Loader {
         this.load(opts);
     }
 
-    load({basePath, raiseOnFailure, paths, textures, programs} = {basePath: '', raiseOnFailure: true}) {
+    load(opts) {
+        let {basePath,
+            raiseOnFailure,
+            paths,
+            textures,
+            programs} = ({basePath: '', raiseOnFailure: true, ...opts});
+        // trim trailing slashes
+        basePath = basePath.replace(/\/+$/, '');
+
         const loadPromise = new Promise(async (resolve, reject) => {
             if (paths) {
                 await this.loadPaths(paths, basePath, raiseOnFailure);
@@ -46,15 +55,29 @@ class Loader {
             }
 
             if (programs) {
-                for (let programName of programs) {
-                    if (this.programCache.has(programName)) {
-                        console.log(`Warning: attempted to load already loaded program '${programName}'`);
+                for (let progOpts of programs) {
+                    let name = progOpts;
+                    let opts;
+
+                    if (_.isObject(progOpts)) {
+                        name = progOpts.name;
+                        opts = progOpts.opts;
+                    }
+
+                    if (this.programCache.has(name)) {
+                        console.log(`Warning: attempted to load already loaded program '${name}'`);
                         continue;
                     }
-                    const vsName = `${basePath}${programName}.vert`;
-                    const fsName = `${basePath}${programName}.frag`;
+
+                    const fp = _.compact([basePath, name.split('.').join('/')]).join('/');
+
+                    const vsName = `${fp}.vert`;
+                    const fsName = `${fp}.frag`;
                     await this.loadPaths([vsName, fsName], '', raiseOnFailure);
-                    this.programCache.set(programName, twgl.createProgramInfo(gl, [this.get(vsName), this.get(fsName)]));
+                    this.programCache.set(
+                        name,
+                        twgl.createProgramInfo(gl, [this.get(vsName), this.get(fsName)], opts)
+                    );
                 }
             }
 
@@ -67,7 +90,11 @@ class Loader {
     }
 
     get(path) {
-        return this.cache.get(path);
+        const ret = this.cache.get(path);
+        if (ret === undefined) {
+            raise `No value for key ${path}`;
+        }
+        return ret;
     }
 
     getTexture(name) {

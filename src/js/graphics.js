@@ -281,13 +281,12 @@ class TilemapRenderer {
                 divisor: 1,
                 drawType: this.gl.DYNAMIC_DRAW
             },
-
             layer: {
                 numComponents: 1,
                 divisor: 1,
                 drawType: this.gl.DYNAMIC_DRAW,
                 type: Int16Array
-            }
+            },
             indices: {
                 data: [
                     0,
@@ -299,7 +298,7 @@ class TilemapRenderer {
         });
 
         this.arrays = {
-            position: new Float32Array(2 * this.maxCells())
+            position: new Float32Array(3 * this.maxCells())
         };
 
         this.vao = twgl.createVertexArrayInfo(this.gl, this.programInfo, this.bufferInfo);
@@ -324,6 +323,9 @@ class TilemapRenderer {
             y: Math.floor(y / this.tileHeight)
         }
 
+        tileCount.x = Math.min(tileCount.x, this.tileMap.width - startIndex.x);
+        tileCount.y = Math.min(tileCount.y, this.tileMap.height - startIndex.yss);
+
         const offset = { x, y };
 
         if (x > 0) {
@@ -333,6 +335,24 @@ class TilemapRenderer {
         if (y > 0) {
             offset.y = -(y % this.tileHeight);
         }
+
+        const addPosition = arraySetter(this.arrays.position);
+
+        for (let y = startIndex.y; y < tileCount.y + startIndex.y; y++) {
+            const yCoord = y * this.tileWidth + offset.y;
+            for (let x = startIndex.x; x < tileCount.x + startIndex.x; x++) {
+                const xCoord = x * this.tileHeight + offset.x;
+                addPosition([xCoord, yCoord, 0]);
+            }
+        }
+    }
+}
+
+function arraySetter(buffer) {
+    let count = 0;
+    return function(newElements) {
+        buffer.set(newElements, count);
+        count += newElements.length;
     }
 }
 
