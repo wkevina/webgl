@@ -3,6 +3,13 @@ import {gl} from 'gl.js';
 import {arraySetter, hsl2rgb} from 'util.js';
 import twgl from 'twgl.js';
 
+function randomColor() {
+    return [
+        ...hsl2rgb(Math.random()*360, Math.random() * 50 + 50, Math.random() * 50 + 20),
+        (Math.random() * 0.6 + 0.4) * 255
+    ];
+}
+
 class ParticleSystem {
     constructor(opts) {
         let {game, maxParticles} = opts;
@@ -85,7 +92,7 @@ class ParticleSystem {
         const max_particles = this.maxParticles;
         const bounds = {
             x0: 0,
-            y0: 0,
+            y0: this.game.resolution.height,
             x1: this.game.resolution.width,
             y1: this.game.resolution.height
         };
@@ -102,10 +109,7 @@ class ParticleSystem {
         for (let i = 0; i < max_particles; i++) {
             const angle = Math.PI * Math.random();
             const speed = Math.random() * max_speed;
-            const randColor = [
-                ...hsl2rgb(Math.random()*360, Math.random() * 50 + 50, Math.random() * 50 + 20),
-                (Math.random() * 0.1 + 0.9) * 255
-            ];
+            const randColor = randomColor();
 
             setVelocity([Math.cos(angle) * speed + 0.01, Math.sin(angle) * speed + 0.01]);
             setPosition([bounds.x0 + Math.random() * (bounds.x1 - bounds.x0), bounds.y0 + Math.random() * (bounds.y1 - bounds.y0)]);
@@ -117,13 +121,6 @@ class ParticleSystem {
 
     setColors() {
         const max_particles = this.maxParticles;
-
-        function randomColor() {
-            return [
-                ...hsl2rgb(Math.random()*360, Math.random() * 50 + 50, Math.random() * 50 + 20),
-                (Math.random() * 0.1 + 0.9) * 255
-            ];
-        }
 
         for (let i = 0; i < max_particles / 10; i++) {
             this.color.set(randomColor(), Math.floor(Math.random() * max_particles) * 4);

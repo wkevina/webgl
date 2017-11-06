@@ -18,9 +18,8 @@ float DRAG = 0.01;
 vec2 GRAVITY = vec2(.0, -.005);
 
 void main() {
-    vec2 v1, p1;
-
-    v1 = velocity;
+    vec2 p1 = position;
+    vec2 v1 = velocity;
 
     vec2 wall_normal = texelFetch(wallForce, ivec2(position), 0).xy;
 
@@ -35,7 +34,7 @@ void main() {
     // drag
     v1 -= DRAG * normalize(v1) * dot(v1, v1);
 
-    p1 += position + v1;
+    p1 += v1;
 
     vec2 v1_abs = abs(v1);
 
@@ -64,5 +63,5 @@ void main() {
     v_color = color;
 
     gl_Position = projection * vec4(p1, 0, 1);
-    gl_PointSize = 2.;
+    gl_PointSize = 1.;
 }
