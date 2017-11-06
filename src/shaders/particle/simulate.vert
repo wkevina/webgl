@@ -15,6 +15,8 @@ uniform vec4 bounds;
 
 float DRAG = 0.01;
 
+vec2 GRAVITY = vec2(.0, -.005);
+
 void main() {
     vec2 v1, p1;
 
@@ -26,7 +28,8 @@ void main() {
         v1 = reflect(v1, wall_normal);
         p1 += wall_normal;
     } else {
-        v1 += wall_normal;
+        v1 += wall_normal*0.5;
+        v1 += GRAVITY;
     }
 
     // drag
@@ -61,5 +64,5 @@ void main() {
     v_color = color;
 
     gl_Position = projection * vec4(p1, 0, 1);
-    gl_PointSize = 4.;
+    gl_PointSize = 2.;
 }

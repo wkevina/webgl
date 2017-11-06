@@ -2,6 +2,7 @@ import {Loader} from 'resource.js';
 import {createProgram} from 'shader-util.js';
 import {mat4} from 'gl-matrix';
 import {registerContext, gl} from 'gl.js';
+import {attachFramebuffer} from 'util.js';
 import twgl from 'twgl.js';
 import 'vendor/webgl-debug.js'
 
@@ -38,6 +39,8 @@ class App {
 
         this.clearColor = clearColor || [0.4, 0.4, 0.4, 1];
         this.resolution = resolution || {width: 352, height: 224};
+
+        this.framebuffer = attachFramebuffer(gl, this.resolution.width, this.resolution.height);
 
         this.loader = new Loader();
 

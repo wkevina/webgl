@@ -29,5 +29,5 @@ Convert coordinates from world space to clip space
 void main() {
     vec4 transformed_position = projection * vec4(position + size * (vertex - offset), 0, 1);
     gl_Position = transformed_position;
-    v_tex_coord = vec2(texcoord);
+    v_tex_coord = vec2(texcoord * ivec2(size));
 }

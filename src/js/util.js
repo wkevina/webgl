@@ -58,4 +58,32 @@ function hsl2rgb (h, s, l) {
     return [r, g, b];
 }
 
-export {arraySetter, hsl2rgb};
+function attachFramebuffer(gl, width, height) {
+    const framebuffer = gl.createFramebuffer();
+    const texture = gl.createTexture();
+
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8, width, height);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+
+    return {
+        width,
+        height,
+        attach() {
+            gl.viewport(0, 0, width, height);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+        },
+        detach() {
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        },
+        texture,
+        framebuffer
+    }
+}
+
+export {arraySetter, hsl2rgb, attachFramebuffer};

@@ -20,10 +20,13 @@ const GRID_VERTICES = new Float32Array([
 ]);
 
 class SpriteRenderer {
-    constructor(game) {
+    constructor({game, textureInfo}) {
         this.gl = game.gl;
         this.loader = game.loader;
         this.game = game;
+
+        this.textureInfo = textureInfo;
+
         this.setup();
     }
 
@@ -56,13 +59,15 @@ class SpriteRenderer {
                 drawType: this.gl.DYNAMIC_DRAW
             },
             texcoord: {
-                //data: [0, 734-80, 40, 734-80, 0, 734, 40, 734],
-                //data: [0, 0, 40, 0, 0, 80, 40, 80],
                 data: [
+                    // 0, 0,
+                    // this.textureInfo.width, 0,
+                    // 0, this.textureInfo.height,
+                    // this.textureInfo.width, this.textureInfo.height
                     0, 0,
-                    300, 0,
-                    0, 734,
-                    300, 734
+                    1, 0,
+                    0, 1,
+                    1, 1
                 ],
                 numComponents: 2,
                 divisor: 0,
@@ -80,8 +85,6 @@ class SpriteRenderer {
 
         this.bufferInfo = twgl.createBufferInfoFromArrays(this.gl, this._arrays);
         this.vao = twgl.createVertexArrayInfo(this.gl, this.programInfo, this.bufferInfo);
-
-        this.texture = this.loader.getTexture('sonic');
     }
 
     render(sprites) {
@@ -125,7 +128,7 @@ class SpriteRenderer {
 
         twgl.setUniforms(this.programInfo, {
             projection: this.game.projection,
-            texture: this.texture
+            texture: this.textureInfo.texture
         });
 
         twgl.setBuffersAndAttributes(this.gl, this.programInfo, this.vao);
@@ -356,10 +359,10 @@ class TilemapRenderer {
 
         const addPosition = arraySetter(this.arrays.position);
 
-        for (let y = startIndex.y; y < tileCount.y + startIndex.y; y++) {
-            const yCoord = y * this.tileWidth + offset.y;
-            for (let x = startIndex.x; x < tileCount.x + startIndex.x; x++) {
-                const xCoord = x * this.tileHeight + offset.x;
+        for (let row = startIndex.y; row < tileCount.y + startIndex.y; row++) {
+            const yCoord = row * this.tileWidth + offset.row;
+            for (let col = startIndex.x; col < tileCount.x + startIndex.x; col++) {
+                const xCoord = col * this.tileHeight + offset.x;
                 addPosition([xCoord, yCoord, 0]);
             }
         }

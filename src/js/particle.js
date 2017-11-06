@@ -8,6 +8,7 @@ class ParticleSystem {
         let {game, maxParticles} = opts;
         this.game = game;
         this.maxParticles = maxParticles;
+        this.frameCount = 0;
         this.setup();
     }
 
@@ -57,6 +58,7 @@ class ParticleSystem {
         }
 
         const {position, velocity, color} = this.initParticles();
+        this.color = color;
 
         twgl.setAttribInfoBufferFromArray(
             gl,
@@ -77,7 +79,6 @@ class ParticleSystem {
         );
 
         this.transformFeedback = gl.createTransformFeedback();
-
     }
 
     initParticles() {
@@ -101,13 +102,38 @@ class ParticleSystem {
         for (let i = 0; i < max_particles; i++) {
             const angle = Math.PI * Math.random();
             const speed = Math.random() * max_speed;
+            const randColor = [
+                ...hsl2rgb(Math.random()*360, Math.random() * 50 + 50, Math.random() * 50 + 20),
+                (Math.random() * 0.1 + 0.9) * 255
+            ];
+
             setVelocity([Math.cos(angle) * speed + 0.01, Math.sin(angle) * speed + 0.01]);
             setPosition([bounds.x0 + Math.random() * (bounds.x1 - bounds.x0), bounds.y0 + Math.random() * (bounds.y1 - bounds.y0)]);
-            const randColor = [...hsl2rgb(360 * Math.random(), 50 + Math.random() * 50, 50 + Math.random() * 50), (Math.random() * 0.8 + 0.2) * 255];
             setColor(randColor);
         }
 
         return {position, velocity, color};
+    }
+
+    setColors() {
+        const max_particles = this.maxParticles;
+
+        function randomColor() {
+            return [
+                ...hsl2rgb(Math.random()*360, Math.random() * 50 + 50, Math.random() * 50 + 20),
+                (Math.random() * 0.1 + 0.9) * 255
+            ];
+        }
+
+        for (let i = 0; i < max_particles / 10; i++) {
+            this.color.set(randomColor(), Math.floor(Math.random() * max_particles) * 4);
+        }
+
+        twgl.setAttribInfoBufferFromArray(
+            gl,
+            this.bufferInfo.simulate.attribs.color,
+            this.color
+        );
     }
 
     draw() {
@@ -120,6 +146,11 @@ class ParticleSystem {
             bounds: [0, 0, this.game.resolution.width, this.game.resolution.height],
             wallForce: this.game.loader.getTexture('wallForce')
         });
+
+        if (this.frameCount % 50 === 0) {
+            this.setColors();
+        }
+
 
         twgl.setBuffersAndAttributes(gl, this.programs.simulate, this.bufferInfo.simulate);
 
@@ -151,6 +182,8 @@ class ParticleSystem {
 
         gl.bindBuffer(gl.COPY_READ_BUFFER, null);
         gl.bindBuffer(gl.COPY_WRITE_BUFFER, null);
+
+        this.frameCount++;
     }
 }
 

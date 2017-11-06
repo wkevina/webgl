@@ -1,6 +1,7 @@
 import {_} from 'underscore';
 
-import {GridOutline} from 'graphics.js';
+import {Sprite} from 'components.js';
+import {GridOutline, SpriteRenderer} from 'graphics.js';
 import {ParticleSystem} from 'particle.js';
 import App from 'app.js';
 import '../css/app.css';
@@ -17,7 +18,7 @@ const app = new App({
         height: 240
     },
     debug: false,
-    clearColor: [0.1, 0.1, 0.1, 1]
+    clearColor: [0,0,0,1]//[0.2, 0.2, 0.2, 1]
 });
 
 app.start();
@@ -32,7 +33,8 @@ app.load({
             }
         },
          'particle.draw',
-         'grid'
+         'grid',
+         'sprite'
      ]
 });
 
@@ -88,6 +90,13 @@ class BarrierTextureBuilder {
         });
     }
 
+    rect(origin, size) {
+        this.line([origin[0], origin[1] + size[1]], [origin[0] + size[0], origin[1] + size[1]]);
+        this.line([origin[0] + size[0], origin[1] + size[1]], [origin[0] + size[0], origin[1]]);
+
+        this.line([origin[0] + size[0], origin[1]], [origin[0], origin[1]]);
+        this.line([origin[0], origin[1]], [origin[0], origin[1] + size[1]]);
+    }
 
 }
 
@@ -109,22 +118,35 @@ function bresenham(x0, y0, x1, y1, cb){
 }
 
 const wallBuilder = new BarrierTextureBuilder({width: 320, height: 240});
-for (let i = 0; i < 20; i++) {
-    wallBuilder.line([0, 0 + i], [319, 239 + i]);
-}
-for (let i = 0; i < 20; i++) {
-    wallBuilder.line([319 + i, 238], [1 + i, 0]);
-}
 
-for (let i = 0; i < 20; i++) {
-    wallBuilder.line([0, 239 + i], [319, 0 + i]);
-}
-for (let i = 0; i < 20; i++) {
-    wallBuilder.line([319, 0 - i], [0, 239 - i]);
-}
+wallBuilder.rect([160, 60], [60, 60])
+
+wallBuilder.line([0, 150], [106, 20]);
+wallBuilder.line([0, 150-1], [106, 20-1]);
+
+wallBuilder.line([106, 20], [214, 20]);
+wallBuilder.line([106, 20-1], [214, 20-1]);
+
+wallBuilder.line([214, 20], [320, 150]);
+wallBuilder.line([214, 20-1], [320, 150-1]);
+
+//
+// for (let i = 0; i < 20; i++) {
+//     wallBuilder.line([0, 0 + i], [319, 239 + i]);
+// }
+// for (let i = 0; i < 20; i++) {
+//     wallBuilder.line([319 + i, 238], [1 + i, 0]);
+// }
+//
+// for (let i = 0; i < 20; i++) {
+//     wallBuilder.line([0, 239 + i], [319, 0 + i]);
+// }
+// for (let i = 0; i < 20; i++) {
+//     wallBuilder.line([319, 0 - i], [0, 239 - i]);
+// }
 
 
-const MAX_PARTICLES = 40000;
+const MAX_PARTICLES = 10000;
 
 
 app.load({
@@ -151,11 +173,31 @@ async function run() {
 
     const particles = new ParticleSystem({game: app, maxParticles: MAX_PARTICLES});
 
+    const framebufferRenderer = new SpriteRenderer({
+        game: app,
+        textureInfo: {
+            texture: app.framebuffer.texture,
+            ...app.resolution
+        }
+    });
+
     requestAnimationFrame(function render() {
         app.adjustViewport();
         app.clear();
         //grid.render();
+        app.framebuffer.attach();
+        app.clear();
+
         particles.draw();
+        app.framebuffer.detach();
+        app.adjustViewport();
+
+        framebufferRenderer.render([
+            new Sprite({
+                position: [0, 0],
+                size: [app.resolution.width-1, app.resolution.height-1]
+            })
+        ])
 
         requestAnimationFrame(render);
     });
