@@ -6,7 +6,7 @@ pipelines:
         caches:
           - node
         script: # Modify the commands below to build your repository.
-          - apk add --update curl
+          - apk add --update curl git
           - yarn install
           - yarn run webpack
           - cp -r src/* dist
