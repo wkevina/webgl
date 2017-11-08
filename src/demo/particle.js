@@ -197,7 +197,7 @@ async function run() {
                 position: [0, 0],
                 size: [app.resolution.width-1, app.resolution.height-1]
             })
-        ])
+        ]);
 
         requestAnimationFrame(render);
     });

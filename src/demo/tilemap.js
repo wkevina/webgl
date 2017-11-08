@@ -1,6 +1,6 @@
 import {_} from 'underscore';
 
-import {TilemapRenderer,
+import {TilemapRenderer,SpriteRenderer,
         GridOutline} from 'graphics.js';
 import {Sprite} from 'components.js';
 import App from 'app.js';
@@ -14,8 +14,8 @@ mountPoint.appendChild(canvas);
 const app = new App({
     el: canvas,
     resolution: {
-        width: 640,
-        height: 480
+        width: 256,
+        height: 224
     },
     debug: false,
     clearColor: [0.1, 0.1, 0.1, 1]
@@ -26,7 +26,7 @@ app.start();
 app.load({
     basePath: 'shaders/',
     programs: ['sprite', 'grid', 'tilemap']
-})
+});
 
 app.load({
     basePath: 'img/',
@@ -37,13 +37,13 @@ app.load({
             min: app.gl.LINEAR,
             flipY: true
         },
-        mario: {
-            target: app.gl.TEXTURE_2D_ARRAY,
-            src: _.range(20).map(i => `img/mario.png.tileset/${i}.png`),
-            mag: app.gl.NEAREST,
-            min: app.gl.LINEAR,
-            flipY: true
-        }
+        // mario: {
+        //     target: app.gl.TEXTURE_2D_ARRAY,
+        //     src: _.range(20).map(i => `img/mario.png.tileset/${i}.png`),
+        //     mag: app.gl.NEAREST,
+        //     min: app.gl.LINEAR,
+        //     flipY: true
+        // }
     }
 });
 
@@ -52,15 +52,55 @@ console.log(app.gl.getParameter(app.gl.MAX_ARRAY_TEXTURE_LAYERS));
 async function run() {
     await app.loader.loading;
 
-    const renderer = new TilemapRenderer({game: app, tilemap: {}});
+    const framebufferRenderer = new SpriteRenderer({
+        game: app,
+        textureInfo: {
+            texture: app.framebuffer.texture,
+            ...app.resolution
+        }
+    });
+
+    const renderer = new SpriteRenderer({
+        game: app,
+        textureInfo: {
+            texture: app.loader.getTexture('sonic'),
+            ...app.resolution
+        }
+    });
+
+    //const renderer = new TilemapRenderer({game: app, tilemap: {}});
+
     const grid = new GridOutline(app);
+    grid.addGrid( 8,  8, [1, 1, 1, 1], 0.5);
+    grid.addGrid(16, 16, [1, 1, 1, 0.5], 1);
+    grid.addGrid(32, 32, [1, 1, 1, 0.5], 1);
 
     requestAnimationFrame(function render() {
-        app.adjustViewport();
+        app.framebuffer.attach();
         app.clear();
-        grid.render( 8,  8, [0.4, 0.1, 0.9, 0.4], 0.25);
-        grid.render(16, 16, [0.1, 0.3, 0.9, 0.4], 0.5);
-        grid.render(32, 32, [0,   0.5, 0.9, 0.3], 1);
+
+        renderer.render([
+            new Sprite({
+                position: [10, 10],
+                size: [300, 734]
+            })
+        ]);
+
+        grid.render();
+
+        app.framebuffer.detach();
+        app.adjustViewport();
+
+        app.clear();
+
+        framebufferRenderer.render([
+            new Sprite({
+                position: [0, 0],
+                size: [app.resolution.width, app.resolution.height]
+            })
+        ]);
+
+
 
         requestAnimationFrame(render);
     });

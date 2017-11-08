@@ -30,7 +30,7 @@ app.start();
 app.load({
     basePath: 'shaders/',
     programs: ['sprite', 'grid', 'tilemap']
-})
+});
 
 app.load({
     basePath: 'img/',
@@ -49,8 +49,18 @@ console.log(app.gl.getParameter(app.gl.MAX_ARRAY_TEXTURE_LAYERS));
 async function run() {
     await app.loader.loading;
 
-    const renderer = new SpriteRenderer(app);
+    const renderer = new SpriteRenderer({
+        game: app,
+        textureInfo: {
+            texture: app.loader.getTexture('sonic'),
+            ...app.resolution
+        }
+    });
+
     const grid = new GridOutline(app);
+    grid.addGrid( 8,  8, [0.4, 0.1, 0.9, 0.4], 0.25);
+    grid.addGrid(16, 16, [0.1, 0.3, 0.9, 0.4], 0.5);
+    grid.addGrid(32, 32, [0,   0.5, 0.9, 0.3], 1);
 
     const sprites = [];
     // for (let i = 0; (i < app.resolution.width / 32); ++i) {
@@ -71,10 +81,8 @@ async function run() {
     requestAnimationFrame(function render() {
         app.adjustViewport();
         app.clear();
-        renderer.render(sprites);
-        grid.render( 8,  8, [0.4, 0.1, 0.9, 0.4], 0.25);
-        grid.render(16, 16, [0.1, 0.3, 0.9, 0.4], 0.5);
-        grid.render(32, 32, [0,   0.5, 0.9, 0.3], 1);
+        //renderer.render(sprites);
+        grid.render();
         requestAnimationFrame(render);
     });
 }

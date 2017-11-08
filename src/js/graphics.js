@@ -369,6 +369,23 @@ class TilemapRenderer {
     }
 }
 
+
+class TilemapTextureBuilder {
+    constructor(opts) {
+        const {tileWidth, tileHeight, width, height, layers} = {
+            tileWidth: 8,
+            tileHeight: 8,
+            width: 256,
+            height: 1,
+            layers: 2,
+            ...opts
+        };
+
+
+    }
+}
+
+
 function arraySetter(buffer) {
     let count = 0;
     return function(newElements) {
