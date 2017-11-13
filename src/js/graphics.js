@@ -434,7 +434,9 @@ class TilemapTextureBuilder {
         this.texture = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D_ARRAY, this.texture);
         gl.texStorage3D(gl.TEXTURE_2D_ARRAY, 1, gl.RGBA8, this.width * this.tileWidth, this.height * this.tileHeight, this.layers);
+        gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
         gl.bindTexture(gl.TEXTURE_2D_ARRAY, null);
+
     }
 
     tileCoordinates() {
