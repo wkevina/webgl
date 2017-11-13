@@ -6,7 +6,9 @@ cache:
   directories:
     - "node_modules"
 
-script: yarn run webpack
+script:
+  - yarn run webpack
+  - cp -r src/* dist/
 
 deploy:
   provider: pages
