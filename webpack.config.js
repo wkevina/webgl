@@ -4,6 +4,26 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPl
 const webpack = require('webpack');
 const glob = require('glob');
 
+const demos = [
+    {title: 'Sprite Demo', name: 'sprite'},
+    {title: 'TilemapTextureBuilder Demo', name: 'tilemap_texture'},
+    {title: 'Particle Demo', name: 'particle'}
+];
+
+function demoConfig(demo) {
+    return new HtmlWebpackPlugin({
+        title: demo.title,
+        filename: demo.name + '.html',
+        chunks: [
+            demo.name, 'common', 'vendor'
+        ],
+        template: 'src/html/template.ejs',
+        appMountIds: ['content'],
+        inject: false,
+        mobile: true
+    });
+}
+
 module.exports = {
     entry: {
         app: './src/js/start.js',
@@ -64,44 +84,12 @@ module.exports = {
             inject: false,
             mobile: true
         }),
-        new HtmlWebpackPlugin({
-            title: 'Sprite Demo',
-            filename: 'sprite.html',
-            chunks: [
-                'sprite', 'common', 'vendor'
-            ],
-            template: 'src/html/template.ejs',
-            appMountIds: ['content'],
-            inject: false,
-            mobile: true
-        }),
-        new HtmlWebpackPlugin({
-            title: 'TilemapTextureBuilder Demo',
-            filename: 'tilemap_texture.html',
-            chunks: [
-                'tilemap_texture', 'common', 'vendor'
-            ],
-            template: 'src/html/template.ejs',
-            appMountIds: ['content'],
-            inject: false,
-            mobile: true
-        }),
-        new HtmlWebpackPlugin({
-            title: 'Particle Demo',
-            filename: 'particle.html',
-            chunks: [
-                'particle', 'common', 'vendor'
-            ],
-            template: 'src/html/template.ejs',
-            appMountIds: ['content'],
-            inject: false,
-            mobile: true
-        }),
         new webpack.optimize.CommonsChunkPlugin({name: 'common', minChunks: 2}),
         new webpack.optimize.CommonsChunkPlugin({
             name: 'vendor',
             minChunks: ({resource}) => resource && resource.includes('node_modules') && resource.match(/\.js$/)
         }),
+        ...demos.map(demoConfig)
         //new BundleAnalyzerPlugin({analyzerMode: 'static'})
     ]
 };
