@@ -11,7 +11,7 @@ module.exports = {
         testconfig: './test/test.js',
         testrun: './test/run.js',
         sprite: './src/demo/sprite.js',
-        tilemap: './src/demo/tilemap.js',
+        tilemap_texture: './src/demo/tilemap_texture.js',
         particle: './src/demo/particle.js'
     },
     devtool: 'source-map',
@@ -76,10 +76,10 @@ module.exports = {
             mobile: true
         }),
         new HtmlWebpackPlugin({
-            title: 'Tilemap Demo',
-            filename: 'tilemap.html',
+            title: 'TilemapTextureBuilder Demo',
+            filename: 'tilemap_texture.html',
             chunks: [
-                'tilemap', 'common', 'vendor'
+                'tilemap_texture', 'common', 'vendor'
             ],
             template: 'src/html/template.ejs',
             appMountIds: ['content'],
