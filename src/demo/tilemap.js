@@ -53,7 +53,7 @@ const tilemapTex = new TilemapTextureBuilder({
 async function run() {
     await app.loader.loading;
 
-    tilemapTex.addTiles(await loadImage('/img/mario.png'));
+    tilemapTex.addTiles(await loadImage('img/mario.png'));
 
     const framebufferRenderer = new SpriteRenderer({
         game: app,

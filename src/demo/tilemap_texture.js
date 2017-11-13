@@ -26,7 +26,7 @@ const tilemapTex = new TilemapTextureBuilder({
 });
 
 
-loadImage('/img/mario.png').then((img) => {
+loadImage('img/mario.png').then((img) => {
     tilemapTex.addTiles(img);
 
     const layers = tilemapTex.readback();
