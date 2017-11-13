@@ -7,6 +7,7 @@ const glob = require('glob');
 const demos = [
     {title: 'Sprite Demo', name: 'sprite'},
     {title: 'TilemapTextureBuilder Demo', name: 'tilemap_texture'},
+    {title: 'Tilemap Demo', name: 'tilemap'},
     {title: 'Particle Demo', name: 'particle'}
 ];
 
@@ -32,6 +33,7 @@ module.exports = {
         testrun: './test/run.js',
         sprite: './src/demo/sprite.js',
         tilemap_texture: './src/demo/tilemap_texture.js',
+        tilemap: './src/demo/tilemap.js',
         particle: './src/demo/particle.js'
     },
     devtool: 'source-map',

@@ -2,7 +2,7 @@ import {SpriteRenderer,
         GridOutline} from 'graphics.js';
 import {Sprite} from 'components.js';
 import App from 'app.js';
-import '../css/app.css'
+import '../css/app.css';
 
 const mountPoint = document.getElementById('content');
 const canvas = document.createElement('canvas');
