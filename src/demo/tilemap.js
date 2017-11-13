@@ -1,109 +1,44 @@
-import {_} from 'underscore';
-
-import {TilemapRenderer,SpriteRenderer,
-        GridOutline} from 'graphics.js';
-import {Sprite} from 'components.js';
-import App from 'app.js';
+import {TilemapTextureBuilder} from 'graphics.js';
+import {loadImage} from 'util.js';
 import '../css/app.css'
 
+import App from 'app.js';
+
+
 const mountPoint = document.getElementById('content');
+mountPoint.style.display = 'none';
 const canvas = document.createElement('canvas');
-canvas.classList.add('game')
+canvas.classList.add('game');
 mountPoint.appendChild(canvas);
 
+
 const app = new App({
-    el: canvas,
-    resolution: {
-        width: 256,
-        height: 224
-    },
-    debug: false,
-    clearColor: [0.1, 0.1, 0.1, 1]
+    el: canvas
 });
 
-app.start();
 
-app.load({
-    basePath: 'shaders/',
-    programs: ['sprite', 'grid', 'tilemap']
+const tilemapTex = new TilemapTextureBuilder({
+    tileWidth: 16,
+    tileHeight: 16,
+    width: 16,
+    height: 16,
+    layers: 4
 });
 
-app.load({
-    basePath: 'img/',
-    textures: {
-        sonic: {
-            src: 'img/Sonic1.gif',
-            mag: app.gl.NEAREST,
-            min: app.gl.LINEAR,
-            flipY: true
-        },
-        // mario: {
-        //     target: app.gl.TEXTURE_2D_ARRAY,
-        //     src: _.range(20).map(i => `img/mario.png.tileset/${i}.png`),
-        //     mag: app.gl.NEAREST,
-        //     min: app.gl.LINEAR,
-        //     flipY: true
-        // }
+
+loadImage('/img/mario.png').then((img) => {
+    tilemapTex.addTiles(img);
+
+    const layers = tilemapTex.readback();
+
+    const canvas = document.createElement('canvas');
+    document.body.prepend(canvas);
+    canvas.width = tilemapTex.width * tilemapTex.tileWidth;
+    canvas.height = tilemapTex.height * tilemapTex.tileHeight * layers.length;
+
+    const ctx = canvas.getContext('2d');
+
+    for (let i = 0; i < layers.length; i++) {
+        ctx.putImageData(layers[i], 0, i * tilemapTex.layerHeight);
     }
 });
-
-console.log(app.gl.getParameter(app.gl.MAX_ARRAY_TEXTURE_LAYERS));
-
-async function run() {
-    await app.loader.loading;
-
-    const framebufferRenderer = new SpriteRenderer({
-        game: app,
-        textureInfo: {
-            texture: app.framebuffer.texture,
-            ...app.resolution
-        }
-    });
-
-    const renderer = new SpriteRenderer({
-        game: app,
-        textureInfo: {
-            texture: app.loader.getTexture('sonic'),
-            ...app.resolution
-        }
-    });
-
-    //const renderer = new TilemapRenderer({game: app, tilemap: {}});
-
-    const grid = new GridOutline(app);
-    grid.addGrid( 8,  8, [1, 1, 1, 1], 0.5);
-    grid.addGrid(16, 16, [1, 1, 1, 0.5], 1);
-    grid.addGrid(32, 32, [1, 1, 1, 0.5], 1);
-
-    requestAnimationFrame(function render() {
-        app.framebuffer.attach();
-        app.clear();
-
-        renderer.render([
-            new Sprite({
-                position: [10, 10],
-                size: [300, 734]
-            })
-        ]);
-
-        grid.render();
-
-        app.framebuffer.detach();
-        app.adjustViewport();
-
-        app.clear();
-
-        framebufferRenderer.render([
-            new Sprite({
-                position: [0, 0],
-                size: [app.resolution.width, app.resolution.height]
-            })
-        ]);
-
-
-
-        requestAnimationFrame(render);
-    });
-}
-
-run();

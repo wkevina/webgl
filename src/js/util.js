@@ -86,4 +86,27 @@ function attachFramebuffer(gl, width, height) {
     }
 }
 
-export {arraySetter, hsl2rgb, attachFramebuffer};
+function loadImage(src) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+
+        function removeListeners() {
+            img.removeEventListener('load', null);
+            img.removeEventListener('error', null);
+        }
+
+        img.addEventListener('load', () => {
+            removeListeners();
+            resolve(img);
+        });
+
+        img.addEventListener('error', (error) => {
+            removeListeners();
+            reject(error);
+        });
+
+        img.src = src;
+    });
+}
+
+export {arraySetter, hsl2rgb, attachFramebuffer, loadImage};
