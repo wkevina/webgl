@@ -1,20 +1,35 @@
 import {Loader} from 'resource.js';
+import {CoordinateConversions} from 'graphics.js';
 import {createProgram} from 'shader-util.js';
-import {mat4} from 'gl-matrix';
+import {mat3, mat4} from 'gl-matrix';
 import {registerContext, gl} from 'gl.js';
 import {attachFramebuffer} from 'util.js';
-import twgl from 'twgl.js';
+import * as twgl from 'twgl-js';
 import 'vendor/webgl-debug.js'
 
 //import * as glMatrix from 'gl-matrix';
 
 function logGLCall(functionName, args) {
-   console.log("gl." + functionName + "(" +
-      WebGLDebugUtils.glFunctionArgsToString(functionName, args) + ")");
+    console.log("gl." + functionName + "(" +
+        WebGLDebugUtils.glFunctionArgsToString(functionName, args) + ")");
 }
 
 function throwOnGLError(err, funcName, args) {
-  throw WebGLDebugUtils.glEnumToString(err) + " was caused by call to: " + funcName;
+    throw WebGLDebugUtils.glEnumToString(err) + " was caused by call to: " + funcName;
+}
+
+const initCanvas = (containerId, canvasClass) => {
+    if (!containerId) {
+        throw new Error('argument containerId, id of containing element required');
+    }
+    const mountPoint = document.getElementById(containerId);
+    const canvas = document.createElement('canvas');
+    if (canvasClass) {
+        canvas.classList.add(canvasClass);
+    }
+    mountPoint.appendChild(canvas);
+
+    return canvas;
 };
 
 class App {
@@ -45,9 +60,7 @@ class App {
         this.loader = new Loader();
 
         this.projection = mat4.ortho(mat4.create(), 0, this.resolution.width, 0, this.resolution.height, -1, 1);
-    }
 
-    start() {
         this.adjustViewport();
     }
 
@@ -72,6 +85,15 @@ class App {
         const yoff = (canvas_height - screen_height) / 2;
 
         this.gl.viewport(xoff, yoff, screen_width, screen_height);
+
+        this._canvasToWorld = CoordinateConversions.canvasToWorldMatrix(
+            {x: xoff, y: yoff, width: screen_width, height: screen_height},
+            this.resolution
+        );
+    }
+
+    get canvasToWorld() {
+        return this._canvasToWorld;
     }
 
     clear() {
@@ -95,3 +117,8 @@ class App {
 }
 
 export default App;
+
+export {
+    App,
+    initCanvas
+};

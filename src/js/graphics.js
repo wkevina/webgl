@@ -1,6 +1,5 @@
-import {createProgram} from 'shader-util.js';
-import twgl from 'twgl.js';
-import {mat4} from 'gl-matrix';
+import * as twgl from 'twgl-js';
+import {mat4, mat3} from 'gl-matrix';
 import {gl} from 'gl.js';
 
 const POSITION_COMPONENTS = 2;
@@ -381,9 +380,9 @@ class TilemapRenderer {
         const addTileIndex = arraySetter(this.arrays.tile_index);
 
         for (let row = 0; row < tileCount.y; row++) {
-            const yCoord = row*this.tileHeight + offset.y;
+            const yCoord = row * this.tileHeight + offset.y;
             for (let col = 0; col < tileCount.x; col++) {
-                const xCoord = col*this.tileWidth + offset.x;
+                const xCoord = col * this.tileWidth + offset.x;
 
                 const tile_index = this.tilemap.getTile(col + startIndex.x, row + startIndex.y);
 
@@ -553,29 +552,97 @@ class TilemapTextureBuilder {
 
         return layers;
     }
-
-    // function setTextureFromElement(gl, tex, element, options) {
-    //     options = options || defaults.textureOptions;
-    //     var target = options.target || gl.TEXTURE_2D;
-    //     var level = options.level || 0;
-    //     var width = element.width;
-    //     var height = element.height;
-    //     var internalFormat = options.internalFormat || options.format || gl.RGBA;
-    //     var formatType = getFormatAndTypeForInternalFormat(internalFormat);
-    //     var format = options.format || formatType.format;
-    //     var type = options.type || formatType.type;
-    //     savePackState(gl, options);
-    //     gl.bindTexture(target, tex);
-    //
-    //     gl.texImage2D(target, level, internalFormat, format, type, element);
-    //
-    //     restorePackState(gl, options);
-    //     if (shouldAutomaticallySetTextureFilteringForSize(options)) {
-    //         setTextureFilteringForSize(gl, tex, options, width, height, internalFormat, type);
-    //     }
-    //     setTextureParameters(gl, tex, options);
-    // }
 }
+
+
+class LineRenderer {
+
+    constructor(opts) {
+
+        const {game, maxLines} = {
+            maxLines: 256,
+            ...opts
+        };
+
+        this.game = game;
+        this.maxLines = maxLines;
+
+        this.programInfo = this.game.getProgram('lines');
+
+        this.setup();
+    }
+
+    setup() {
+        this.bufferInfo = twgl.createBufferInfoFromArrays(gl, {
+            position: {
+                numComponents: 2,
+                drawType: gl.DYNAMIC_DRAW
+            }
+        });
+
+        this.arrays = {
+            position: new Float32Array(2 * 2 * this.maxLines)
+        };
+
+        this.vao = twgl.createVertexArrayInfo(gl, this.programInfo, this.bufferInfo);
+        twgl.setBuffersAndAttributes(gl, this.programInfo, this.vao);
+    }
+
+    render(lines, color) {
+        // copy data from lines to this.arrays.position
+        this.arrays.position.set(lines);
+
+        //gl.enable(gl.LINES);
+
+        gl.useProgram(this.programInfo.program);
+
+        twgl.setUniforms(this.programInfo, {
+            projection: this.game.projection,
+            color: color
+        });
+
+        twgl.setAttribInfoBufferFromArray(
+            gl,
+            this.bufferInfo.attribs.position,
+            this.arrays.position
+        );
+
+        twgl.setBuffersAndAttributes(gl, this.programInfo, this.vao);
+        twgl.drawBufferInfo(gl, this.vao, gl.LINES, lines.length / 2);
+    }
+}
+
+
+const CoordinateConversions = {
+    canvasToWorldMatrix(displayRect, virtualSize) {
+        const acc = mat3.create();
+        const temp = mat3.create();
+
+        // (scale to virtualSize) * (project viewport) * (subtract offset) * point
+
+        // offset
+        mat3.fromTranslation(acc, [-displayRect.x, -displayRect.y]);
+
+        // project
+        mat3.multiply(acc, mat3.fromScaling(temp, [1 / displayRect.width, 1 / displayRect.height, 1]), acc);
+
+        // scale to virtual size
+        mat3.multiply(acc, mat3.fromScaling(temp, [virtualSize.width, virtualSize.height, 1]), acc);
+
+        // flip y
+        mat3.multiply(
+            acc,
+            mat3.fromValues(
+                1, 0, 0,
+                0, -1, 0,
+                0, virtualSize.height, 1
+            ),
+            acc
+        );
+
+        return acc;
+    }
+};
 
 
 function arraySetter(buffer) {
@@ -593,5 +660,7 @@ export {
     SpriteRenderer,
     TilemapRenderer,
     TilemapTextureBuilder,
-    GridOutline
+    GridOutline,
+    LineRenderer,
+    CoordinateConversions
 };

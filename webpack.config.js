@@ -8,7 +8,9 @@ const demos = [
     {title: 'Sprite Demo', name: 'sprite'},
     {title: 'TilemapTextureBuilder Demo', name: 'tilemap_texture'},
     {title: 'Tilemap Demo', name: 'tilemap'},
-    {title: 'Particle Demo', name: 'particle'}
+    {title: 'Particle Demo', name: 'particle'},
+    {title: 'Lines Demo', name: 'lines'},
+    {title: 'Physics Demo', name: 'physics'}
 ];
 
 function demoConfig(demo) {
@@ -34,7 +36,9 @@ module.exports = {
         sprite: './src/demo/sprite.js',
         tilemap_texture: './src/demo/tilemap_texture.js',
         tilemap: './src/demo/tilemap.js',
-        particle: './src/demo/particle.js'
+        particle: './src/demo/particle.js',
+        lines: './src/demo/lines.js',
+        physics: './src/demo/physics.js'
     },
     devtool: 'source-map',
     devServer: {

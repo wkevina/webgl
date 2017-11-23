@@ -27,7 +27,7 @@ describe('StateStack', function() {
             stack.top().should.equal(newState);
         });
 
-        it("calls enter on incoming state", function() {
+        it("calls onMouseMove on incoming state", function() {
             newState.enter.called.should.be.true;
         });
 
@@ -67,7 +67,7 @@ describe('StateStack', function() {
             stack.top().should.equal(newState);
         });
 
-        it('calls enter on incoming state', function() {
+        it('calls onMouseMove on incoming state', function() {
             const newState = new TestState();
             stack.replace(newState);
             newState.enter.called.should.be.true;

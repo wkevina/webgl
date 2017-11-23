@@ -1,7 +1,7 @@
 import {createProgram} from 'shader-util.js';
 import {gl} from 'gl.js';
 import {arraySetter, hsl2rgb} from 'util.js';
-import twgl from 'twgl.js';
+import * as twgl from 'twgl-js';
 
 function randomColor() {
     return [

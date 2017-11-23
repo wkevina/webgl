@@ -1,5 +1,5 @@
 import {_} from 'underscore'
-import twgl from 'twgl.js';
+import * as twgl from 'twgl-js';
 import {gl} from 'gl.js';
 
 function getGl() {

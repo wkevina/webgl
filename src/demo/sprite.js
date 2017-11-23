@@ -81,7 +81,7 @@ async function run() {
     requestAnimationFrame(function render() {
         app.adjustViewport();
         app.clear();
-        //renderer.render(sprites);
+        renderer.render(sprites);
         grid.render();
         requestAnimationFrame(render);
     });
