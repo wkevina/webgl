@@ -1,3 +1,9 @@
 {
-  "presets": ["modern-browsers"]
+  "presets": [
+    ["@babel/env", {
+      "exclude": ["transform-arrow-functions", "transform-regenerator"],
+      "modules": false
+    }]
+  ],
+  plugins: ["@babel/plugin-proposal-object-rest-spread"]
 }

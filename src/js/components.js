@@ -8,7 +8,7 @@ class Sprite {
     }
 }
 
-class Polygon {
+class RenderPolygon {
     constructor(options) {
         this.vertices = options.vertices;
         this.closed = options.closed || true;
@@ -18,4 +18,4 @@ class Polygon {
     }
 }
 
-export {Sprite, Polygon};
+export {Sprite, RenderPolygon};

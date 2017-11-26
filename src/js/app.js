@@ -1,6 +1,5 @@
 import {Loader} from 'resource.js';
-import {CoordinateConversions} from 'graphics.js';
-import {createProgram} from 'shader-util.js';
+import {CoordinateConversions, Camera} from 'graphics.js';
 import {mat3, mat4} from 'gl-matrix';
 import {registerContext, gl} from 'gl.js';
 import {attachFramebuffer} from 'util.js';
@@ -32,19 +31,31 @@ const initCanvas = (containerId, canvasClass) => {
     return canvas;
 };
 
+/**
+ * options:
+ * el
+ * debug - default: false
+ * clearColor - default: [0.4, 0.4, 0.4, 1]
+ * resolution - default: { width: 352, height: 224 }
+ * pixelMultiplier - default: 2
+ */
 class App {
-    constructor({el, debug, clearColor, resolution}) {
-        if (typeof canvas === 'string') {
-            this.canvas = document.getElementById(el);
+    constructor(options) {
+        this.clearColor = options.clearColor || [0.4, 0.4, 0.4, 1];
+        this.resolution = options.resolution || { width: 352, height: 224 };
+        this.pixelMultiplier = options.pixelMultiplier || 2;
+
+        if (typeof options.el === 'string') {
+            this.canvas = document.getElementById(options.el);
         } else {
-            this.canvas = el;
+            this.canvas = options.el;
         }
 
         // create rendering context
         this.gl = this.canvas.getContext('webgl2');
         registerContext(this.gl);
 
-        if (debug) {
+        if (options.debug) {
             WebGLDebugUtils.init(this.gl);
             this.gl = WebGLDebugUtils.makeDebugContext(this.gl, undefined, logGLCall);
         }
@@ -52,48 +63,35 @@ class App {
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         gl.enable(gl.BLEND);
 
-        this.clearColor = clearColor || [0.4, 0.4, 0.4, 1];
-        this.resolution = resolution || {width: 352, height: 224};
-
         this.framebuffer = attachFramebuffer(gl, this.resolution.width, this.resolution.height);
-
         this.loader = new Loader();
-
         this.projection = mat4.ortho(mat4.create(), 0, this.resolution.width, 0, this.resolution.height, -1, 1);
-
+        this.camera = new Camera(this.resolution);
+        this.updateCanvasSize();
         this.adjustViewport();
     }
 
-    adjustViewport() {
-        twgl.resizeCanvasToDisplaySize(this.canvas);
+    updateCanvasSize() {
+        const width = this.resolution.width * this.pixelMultiplier;
+        const height = this.resolution.height * this.pixelMultiplier;
 
+        this.canvas.width = width;
+        this.canvas.height = height;
+        this.canvas.style.width = `${width}px`;
+        this.canvas.style.height = `${height}px`;
+    }
+
+    adjustViewport() {
         const canvas_width = this.canvas.clientWidth;
         const canvas_height = this.canvas.clientHeight;
 
-        const desired_aspect_ratio = this.resolution.width / this.resolution.height;
-        let screen_width, screen_height;
-
-        if (canvas_width / canvas_height >= desired_aspect_ratio) {
-            screen_width = desired_aspect_ratio * canvas_height;
-            screen_height = canvas_height;
-        } else {
-            screen_width = canvas_width;
-            screen_height = canvas_width / desired_aspect_ratio;
-        }
-
-        const xoff = (canvas_width - screen_width) / 2;
-        const yoff = (canvas_height - screen_height) / 2;
-
-        this.gl.viewport(xoff, yoff, screen_width, screen_height);
+        this.gl.viewport(0, 0, canvas_width, canvas_height);
 
         this._canvasToWorld = CoordinateConversions.canvasToWorldMatrix(
-            {x: xoff, y: yoff, width: screen_width, height: screen_height},
+            this.camera.matrix,
+            { width: canvas_width, height: canvas_height },
             this.resolution
         );
-    }
-
-    get canvasToWorld() {
-        return this._canvasToWorld;
     }
 
     clear() {
@@ -113,6 +111,14 @@ class App {
         }
 
         return ret;
+    }
+
+    get canvasToWorld() {
+        return this._canvasToWorld;
+    }
+
+    get viewMatrix() {
+        return mat4.multiply(mat4.create(), this.projection, this.camera.matrix);
     }
 }
 

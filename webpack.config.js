@@ -45,7 +45,10 @@ module.exports = {
         contentBase: path.resolve(__dirname, 'src')
     },
     resolve: {
-        modules: ['src/js', 'node_modules', 'test']
+        modules: ['src/js', 'node_modules', 'test'],
+        alias: {
+            'twgl-js': 'twgl.js'
+        }
     },
     module: {
         rules: [
@@ -65,6 +68,9 @@ module.exports = {
         path: path.resolve(__dirname, 'dist')
     },
     plugins: [
+        new webpack.ProvidePlugin({
+           decomp: 'poly-decomp'
+        }),
         new HtmlWebpackPlugin({
             title: 'App',
             filename: 'index.html',

@@ -1,5 +1,5 @@
 import * as twgl from 'twgl-js';
-import {mat4, mat3} from 'gl-matrix';
+import {mat4, mat3, vec2, vec3, vec4} from 'gl-matrix';
 import {gl} from 'gl.js';
 
 const POSITION_COMPONENTS = 2;
@@ -81,7 +81,7 @@ class SpriteRenderer {
                     3
                 ]
             }
-        }
+        };
 
         this.bufferInfo = twgl.createBufferInfoFromArrays(this.gl, this._arrays);
         this.vao = twgl.createVertexArrayInfo(this.gl, this.programInfo, this.bufferInfo);
@@ -577,6 +577,10 @@ class LineRenderer {
             position: {
                 numComponents: 2,
                 drawType: gl.DYNAMIC_DRAW
+            },
+            translation: {
+                numComponents: 2,
+                drawType: gl.DYNAMIC_DRAW
             }
         });
 
@@ -597,7 +601,7 @@ class LineRenderer {
         gl.useProgram(this.programInfo.program);
 
         twgl.setUniforms(this.programInfo, {
-            projection: this.game.projection,
+            projection: this.game.viewMatrix,
             color: color
         });
 
@@ -610,39 +614,98 @@ class LineRenderer {
         twgl.setBuffersAndAttributes(gl, this.programInfo, this.vao);
         twgl.drawBufferInfo(gl, this.vao, gl.LINES, lines.length / 2);
     }
+
+    renderPolygons(polygons, color = [1, 1, 1, 1]) {
+        const setter = arraySetter(this.arrays.position);
+
+        let lineCount = 0;
+        polygons.forEach(polygon => {
+            setter(polygon.vertices[0]);
+            polygon.vertices.slice(1).forEach(vtx => setter(vtx.concat(vtx)));
+            setter(polygon.vertices[0]);
+            lineCount += polygon.vertices.length;
+        });
+
+        twgl.setAttribInfoBufferFromArray(
+            gl,
+            this.bufferInfo.attribs.position,
+            this.arrays.position
+        );
+
+        gl.useProgram(this.programInfo.program);
+
+        twgl.setUniforms(this.programInfo, {
+            projection: this.game.viewMatrix,
+            color: color
+        });
+
+        twgl.setBuffersAndAttributes(gl, this.programInfo, this.vao);
+        twgl.drawBufferInfo(gl, this.vao, gl.LINES, lineCount * 2);
+    }
 }
 
 
 const CoordinateConversions = {
-    canvasToWorldMatrix(displayRect, virtualSize) {
-        const acc = mat3.create();
-        const temp = mat3.create();
+    canvasToWorldMatrix(viewMatrix, displaySize, virtualSize) {
+        const acc = mat4.create();
+        const temp = mat4.create();
 
         // (scale to virtualSize) * (project viewport) * (subtract offset) * point
 
-        // offset
-        mat3.fromTranslation(acc, [-displayRect.x, -displayRect.y]);
-
-        // project
-        mat3.multiply(acc, mat3.fromScaling(temp, [1 / displayRect.width, 1 / displayRect.height, 1]), acc);
-
-        // scale to virtual size
-        mat3.multiply(acc, mat3.fromScaling(temp, [virtualSize.width, virtualSize.height, 1]), acc);
+        // (inverse viewMatrix) * (scale virtualSize / displaySize) * (flip y) * point
 
         // flip y
-        mat3.multiply(
+        mat4.multiply(
             acc,
-            mat3.fromValues(
-                1, 0, 0,
-                0, -1, 0,
-                0, virtualSize.height, 1
+            mat4.fromValues(
+                1,  0, 0, 0,
+                0, -1, 0, 0,
+                0,  0, 1, 0,
+                0, displaySize.height, 1, 1
             ),
             acc
         );
 
+        // scale
+        mat4.fromScaling(
+            temp,
+            [virtualSize.width / displaySize.width, virtualSize.height / displaySize.height, 1]
+        );
+        mat4.multiply(acc, temp, acc);
+
+        // invert view
+        mat4.invert(temp, viewMatrix);
+        mat4.multiply(acc, temp, acc);
+
         return acc;
     }
 };
+
+class Camera {
+    constructor(bounds) {
+        this._translation = vec2.create();
+        this._bounds = bounds;
+    }
+
+    centerAt(x, y) {
+        this._translation.set([
+            -(x - this._bounds.width/2),
+            -(y - this._bounds.height/2)
+        ]);
+
+        return this;
+    }
+
+    translate(x, y) {
+        vec2.sub(this._translation, this._translation, [x, y]);
+
+        return this;
+    }
+
+    get matrix() {
+        return mat4.fromTranslation(mat4.create(), vec4.fromValues(...this._translation, 0, 1));
+    }
+}
 
 
 function arraySetter(buffer) {
@@ -650,6 +713,9 @@ function arraySetter(buffer) {
     return function (newElements) {
         if (!newElements.length) {
             newElements = [newElements];
+        }
+        if (count + newElements.length > buffer.length) {
+            throw new Error('attempting to append beyond buffer length');
         }
         buffer.set(newElements, count);
         count += newElements.length;
@@ -662,5 +728,6 @@ export {
     TilemapTextureBuilder,
     GridOutline,
     LineRenderer,
-    CoordinateConversions
+    CoordinateConversions,
+    Camera
 };

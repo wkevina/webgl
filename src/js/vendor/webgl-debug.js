@@ -221,7 +221,7 @@ var glValidEnumContexts = {
 
   'vertexAttribIPointer': {5: { 2:true }},
 
-  // WebGL 2 Writing to the drawing buffer
+  // WebGL 2 Writing to the isDrawing buffer
 
   'drawArraysInstanced': {4: { 0:true }},
   'drawElementsInstanced': {5: { 0:true, 2:true }},

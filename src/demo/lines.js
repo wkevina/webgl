@@ -62,16 +62,16 @@ class MouseDrawing {
         // };
 
         this._lineData = new Float32Array(2 * 2 * 1024);
-        this.currentLine = 0;
+        this.currentLineIdx = 0;
         this.available = 0;
-        this.drawing = false;
+        this.isDrawing = false;
 
         this.game.canvas.addEventListener('mousemove', (evt) => {
             this.update(this.convertMouseCoordinates({ x: evt.offsetX, y: evt.offsetY }));
         });
 
         this.game.canvas.addEventListener('mousedown', (evt) => {
-            if (!this.drawing) {
+            if (!this.isDrawing) {
                 this.startLine(this.convertMouseCoordinates({ x: evt.offsetX, y: evt.offsetY }));
             } else {
                 this.endLine(this.convertMouseCoordinates({ x: evt.offsetX, y: evt.offsetY }));
@@ -92,8 +92,8 @@ class MouseDrawing {
     }
 
     startLine(coord) {
-        if (this.inBounds(coord) && !this.drawing) {
-            this.drawing = true;
+        if (this.inBounds(coord) && !this.isDrawing) {
+            this.isDrawing = true;
             this.available++;
 
             this._lineData[this.lineIndex + 0] = coord.x;
@@ -104,7 +104,7 @@ class MouseDrawing {
     }
 
     get lineIndex() {
-        return this.currentLine * 4;
+        return this.currentLineIdx * 4;
     }
 
     get lineData() {
@@ -112,18 +112,18 @@ class MouseDrawing {
     }
 
     endLine(coord) {
-        if (this.drawing) {
-            this.drawing = false;
+        if (this.isDrawing) {
+            this.isDrawing = false;
 
             this._lineData[this.lineIndex + 2] = coord.x;
             this._lineData[this.lineIndex + 3] = coord.y;
 
-            this.currentLine++;
+            this.currentLineIdx++;
         }
     }
 
     update(coord) {
-        if (this.drawing) {
+        if (this.isDrawing) {
             this._lineData[this.lineIndex + 2] = coord.x;
             this._lineData[this.lineIndex + 3] = coord.y;
         }
