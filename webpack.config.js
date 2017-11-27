@@ -60,6 +60,10 @@ module.exports = {
                 test: /\.js$/,
                 exclude: [/node_modules/, /src\/js\/vendor/],
                 use: ['babel-loader']
+            },
+            {
+                test: /shaders\//,
+                use: ['raw-loader']
             }
         ]
     },
