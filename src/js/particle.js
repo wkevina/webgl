@@ -1,7 +1,6 @@
-import {createProgram} from 'shader-util.js';
-import {gl} from 'gl.js';
-import {arraySetter, hsl2rgb} from 'util.js';
-import * as twgl from 'twgl-js';
+import {gl} from './gl.js';
+import {arraySetter, hsl2rgb} from './util';
+import twgl from './twgl';
 
 function randomColor() {
     return [
@@ -45,7 +44,7 @@ class ParticleSystem {
                     data: this.maxParticles * 4,
                     numComponents: 4,
                     normalized: true,
-                    drawType: gl.STATIC_DRAW
+                    drawType: gl.DYNAMIC_DRAW
                 },
                 positionFeedback: {
                     numComponents: 2,
@@ -62,7 +61,7 @@ class ParticleSystem {
 
         this.programs = {
             simulate: this.game.getProgram('particle.simulate')
-        }
+        };
 
         const {position, velocity, color} = this.initParticles();
         this.color = color;
@@ -112,7 +111,10 @@ class ParticleSystem {
             const randColor = randomColor();
 
             setVelocity([Math.cos(angle) * speed + 0.01, Math.sin(angle) * speed + 0.01]);
-            setPosition([bounds.x0 + Math.random() * (bounds.x1 - bounds.x0), bounds.y0 + Math.random() * (bounds.y1 - bounds.y0)]);
+            setPosition([
+                bounds.x0 + Math.random() * (bounds.x1 - bounds.x0),
+                bounds.y0 + Math.random() * (bounds.y1 - bounds.y0)
+            ]);
             setColor(randColor);
         }
 

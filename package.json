@@ -6,7 +6,7 @@
   "dependencies": {
     "gl-matrix": "",
     "global": "^4.3.2",
-    "matter-js": "^0.13.0",
+    "planck-js": "^0.1.34",
     "poly-decomp": "^0.2.1",
     "twgl.js": "^4.0.0",
     "underscore": "^1.8.3"

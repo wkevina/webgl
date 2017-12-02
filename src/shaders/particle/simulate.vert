@@ -21,15 +21,15 @@ void main() {
     vec2 p1 = position;
     vec2 v1 = velocity;
 
-    vec2 wall_normal = texelFetch(wallForce, ivec2(position), 0).xy;
-
-    if (length(wall_normal) > 0.8) {
-        v1 = reflect(v1, wall_normal);
-        p1 += wall_normal;
-    } else {
-        v1 += wall_normal*0.5;
-        v1 += GRAVITY;
-    }
+//    vec2 wall_normal = texelFetch(wallForce, ivec2(position), 0).xy;
+//
+//    if (length(wall_normal) > 0.8) {
+//        v1 = reflect(v1, wall_normal);
+//        p1 += wall_normal;
+//    } else {
+//        v1 += wall_normal*0.5;
+//        v1 += GRAVITY;
+//    }
 
     // drag
     v1 -= DRAG * normalize(v1) * dot(v1, v1);

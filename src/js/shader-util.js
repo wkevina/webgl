@@ -1,4 +1,4 @@
-import * as twgl from 'twgl-js';
+import twgl from './twgl';
 
 /**
  * Creates a GLSL program from sources at two URLs

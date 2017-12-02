@@ -1,14 +1,12 @@
-import {_} from 'underscore';
-
-import {Sprite} from 'components.js';
-import {GridOutline, SpriteRenderer} from 'graphics.js';
-import {ParticleSystem} from 'particle.js';
-import App from 'app.js';
+import {Sprite} from '../js/components';
+import {GridOutline, SpriteRenderer} from '../js/graphics';
+import {ParticleSystem} from '../js/particle';
+import App from '../js/app';
 import '../css/app.css';
 
 const mountPoint = document.getElementById('content');
 const canvas = document.createElement('canvas');
-canvas.classList.add('game')
+canvas.classList.add('game');
 mountPoint.appendChild(canvas);
 
 const app = new App({
@@ -21,7 +19,6 @@ const app = new App({
     clearColor: [0,0,0,1]//[0.2, 0.2, 0.2, 1]
 });
 
-app.start();
 
 app.load({
     basePath: 'shaders/',
@@ -37,8 +34,6 @@ app.load({
          'sprite'
      ]
 });
-
-console.log(app.gl.getParameter(app.gl.MAX_ARRAY_TEXTURE_LAYERS));
 
 class PixelBufferWrapper {
     constructor(opts) {
@@ -166,40 +161,44 @@ app.load({
 async function run() {
     await app.loader.loading;
 
-    const grid = new GridOutline(app);
-    grid.addGrid( 8,  8, [0.4, 0.1, 0.9, 0.4], 0.25);
+    // const grid = new GridOutline(app);
+    // grid.addGrid( 8,  8, [0.4, 0.1, 0.9, 0.4], 1);
     //grid.addGrid(16, 16, [0.1, 0.3, 0.9, 0.4], 0.5);
     //grid.addGrid(32, 32, [0,   0.5, 0.9, 0.3], 1);
 
     const particles = new ParticleSystem({game: app, maxParticles: MAX_PARTICLES});
 
-    const framebufferRenderer = new SpriteRenderer({
-        game: app,
-        textureInfo: {
-            texture: app.framebuffer.texture,
-            ...app.resolution
-        }
-    });
+    // const framebufferRenderer = new SpriteRenderer({
+    //     game: app,
+    //     textureInfo: {
+    //         texture: app.framebuffer.texture,
+    //         ...app.resolution
+    //     }
+    // });
 
     requestAnimationFrame(function render() {
         app.adjustViewport();
         app.clear();
+
+        //app.framebuffer.attach();
+        //app.clear();
+
         //grid.render();
-        app.framebuffer.attach();
-        app.clear();
-
         particles.draw();
-        app.framebuffer.detach();
-        app.adjustViewport();
 
-        framebufferRenderer.render([
-            new Sprite({
-                position: [0, 0],
-                size: [app.resolution.width-1, app.resolution.height-1]
-            })
-        ]);
+        // app.framebuffer.detach();
+        //
+        // app.adjustViewport();
 
-        requestAnimationFrame(render);
+        // framebufferRenderer.render([
+        //     new Sprite({
+        //         position: [0, 0],
+        //         size: [app.resolution.width, app.resolution.height]
+        //     })
+        // ]);
+        if (!app.debug) {
+            requestAnimationFrame(render);
+        }
     });
 }
 

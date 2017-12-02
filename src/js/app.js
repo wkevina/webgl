@@ -3,7 +3,6 @@ import {CoordinateConversions, Camera} from 'graphics.js';
 import {mat3, mat4} from 'gl-matrix';
 import {registerContext, gl} from 'gl.js';
 import {attachFramebuffer} from 'util.js';
-import * as twgl from 'twgl-js';
 import 'vendor/webgl-debug.js'
 
 //import * as glMatrix from 'gl-matrix';
@@ -53,12 +52,13 @@ class App {
 
         // create rendering context
         this.gl = this.canvas.getContext('webgl2');
-        registerContext(this.gl);
 
         if (options.debug) {
             WebGLDebugUtils.init(this.gl);
             this.gl = WebGLDebugUtils.makeDebugContext(this.gl, undefined, logGLCall);
         }
+
+        registerContext(this.gl);
 
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         gl.enable(gl.BLEND);

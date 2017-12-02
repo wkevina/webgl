@@ -1,6 +1,12 @@
 function arraySetter(buffer) {
     let count = 0;
-    return function(newElements) {
+    return function (newElements) {
+        if (!newElements.length) {
+            newElements = [newElements];
+            if (count + newElements.length > buffer.length) {
+                throw new Error('attempting to append beyond buffer length');
+            }
+        }
         buffer.set(newElements, count);
         count += newElements.length;
     }

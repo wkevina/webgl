@@ -10,7 +10,8 @@ const demos = [
     {title: 'Tilemap Demo', name: 'tilemap'},
     {title: 'Particle Demo', name: 'particle'},
     {title: 'Lines Demo', name: 'lines'},
-    {title: 'Physics Demo', name: 'physics'}
+    {title: 'Physics Demo', name: 'physics'},
+    {title: 'Pixel Editor', name: 'pixel'}
 ];
 
 function demoConfig(demo) {
@@ -38,7 +39,8 @@ module.exports = {
         tilemap: './src/demo/tilemap.js',
         particle: './src/demo/particle.js',
         lines: './src/demo/lines.js',
-        physics: './src/demo/physics.js'
+        physics: './src/demo/physics.js',
+        pixel: './src/demo/pixel.js'
     },
     devtool: 'source-map',
     devServer: {
