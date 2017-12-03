@@ -68,6 +68,7 @@ class App {
         this.loader = new Loader();
         this.projection = mat4.ortho(mat4.create(), 0, this.resolution.width, 0, this.resolution.height, -1, 1);
         this.camera = new Camera(this.resolution);
+        this.cameraEnabled = true;
         this.updateCanvasSize();
         this.adjustViewport();
     }
@@ -114,12 +115,24 @@ class App {
         return ret;
     }
 
+    enableCamera() {
+        this.cameraEnabled = true;
+    }
+
+    disableCamera() {
+        this.cameraEnabled = false;
+    }
+
     get canvasToWorld() {
         return this._canvasToWorld;
     }
 
     get viewMatrix() {
-        return mat4.multiply(mat4.create(), this.projection, this.camera.matrix);
+        let camera = mat4.create();
+        if (this.cameraEnabled) {
+            camera = this.camera.matrix;
+        }
+        return mat4.multiply(mat4.create(), this.projection, camera);
     }
 }
 

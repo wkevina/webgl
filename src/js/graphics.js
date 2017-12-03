@@ -7,12 +7,7 @@ import {arraySetter} from 'util';
 const POSITION_COMPONENTS = 2;
 const SIZE_COMPONENTS = 2;
 
-const SPRITE_RECT_VERTICES = new Float32Array([
-    0, 0, // bottom left
-    1, 0, // bottom right
-    0, 1, // top left
-    1, 1  // top right
-]);
+
 
 const GRID_VERTICES = new Float32Array([
     0, 0, // bottom left
@@ -20,123 +15,6 @@ const GRID_VERTICES = new Float32Array([
     0, 1, // top left
     1, 1  // top right
 ]);
-
-class SpriteRenderer {
-    constructor({game, textureInfo}) {
-        this.gl = game.gl;
-        this.loader = game.loader;
-        this.game = game;
-
-        this.textureInfo = textureInfo;
-
-        this.setup();
-    }
-
-    setup() {
-        this.programInfo = this.game.getProgram('sprite');
-
-        this._arrays = {
-            vertex: {
-                data: SPRITE_RECT_VERTICES,
-                numComponents: 2,
-                divisor: 0,
-                drawType: this.gl.STATIC_DRAW
-            },
-            position: {
-                //data: SPRITE_RECT_VERTICES,
-                numComponents: 2,
-                divisor: 1,
-                drawType: this.gl.DYNAMIC_DRAW
-            },
-            offset: {
-                //data: SPRITE_RECT_VERTICES,
-                numComponents: 2,
-                divisor: 1,
-                drawType: this.gl.DYNAMIC_DRAW
-            },
-            size: {
-                //data: SPRITE_RECT_VERTICES,
-                numComponents: 2,
-                divisor: 1,
-                drawType: this.gl.DYNAMIC_DRAW
-            },
-            texcoord: {
-                data: [
-                    // 0, 0,
-                    // this.textureInfo.width, 0,
-                    // 0, this.textureInfo.height,
-                    // this.textureInfo.width, this.textureInfo.height
-                    0, 0,
-                    1, 0,
-                    0, 1,
-                    1, 1
-                ],
-                numComponents: 2,
-                divisor: 0,
-                type: Int16Array
-            },
-            indices: {
-                data: [
-                    0,
-                    1,
-                    2,
-                    3
-                ]
-            }
-        };
-
-        this.bufferInfo = twgl.createBufferInfoFromArrays(this.gl, this._arrays);
-        this.vao = twgl.createVertexArrayInfo(this.gl, this.programInfo, this.bufferInfo);
-    }
-
-    render(sprites) {
-        const positions = new Float32Array(2 * sprites.length);
-        const sizes = new Float32Array(2 * sprites.length);
-        const offsets = new Float32Array(2 * sprites.length);
-
-        sprites.forEach((sprite, spriteIndex) => {
-            sprite.position.forEach((v, compIndex) => {
-                positions[spriteIndex * 2 + compIndex] = v;
-            });
-
-            sprite.size.forEach((v, compIndex) => {
-                sizes[spriteIndex * 2 + compIndex] = v;
-            });
-
-            sprite.offset.forEach((v, compIndex) => {
-                offsets[spriteIndex * 2 + compIndex] = v;
-            });
-        });
-
-        twgl.setAttribInfoBufferFromArray(
-            this.gl,
-            this.bufferInfo.attribs.position,
-            positions
-        );
-
-        twgl.setAttribInfoBufferFromArray(
-            this.gl,
-            this.bufferInfo.attribs.size,
-            sizes
-        );
-
-        twgl.setAttribInfoBufferFromArray(
-            this.gl,
-            this.bufferInfo.attribs.offset,
-            offsets
-        );
-
-        this.gl.useProgram(this.programInfo.program);
-
-        twgl.setUniforms(this.programInfo, {
-            projection: this.game.projection,
-            texture: this.textureInfo.texture
-        });
-
-        twgl.setBuffersAndAttributes(this.gl, this.programInfo, this.vao);
-        twgl.drawBufferInfo(this.gl, this.vao, this.gl.TRIANGLE_STRIP, undefined, undefined, sprites.length);
-    }
-}
 
 function makeGridVertices({xcells, ycells}, {w, h}, {lineWidth}) {
     const position = new Float32Array(2 * (xcells + ycells));
@@ -204,8 +82,8 @@ class GridOutline {
     }
 
     addGrid(sx = 32, sy = 32, lineColor = [1, 1, 1, 1], lineWidth = 2) {
-        const xcells = Math.floor(this.game.resolution.width / sx);
-        const ycells = Math.floor(this.game.resolution.height / sy);
+        const xcells = Math.ceil(this.game.resolution.width / sx) + 1;
+        const ycells = Math.ceil(this.game.resolution.height / sy) + 1;
         const instanceCount = xcells + ycells;
 
         const {position, size} = makeGridVertices({xcells, ycells}, {w: sx, h: sy}, {lineWidth: lineWidth});
@@ -214,7 +92,9 @@ class GridOutline {
             position,
             size,
             instanceCount,
-            lineColor
+            lineColor,
+            sx,
+            sy
         })
     }
 
@@ -227,8 +107,18 @@ class GridOutline {
 
         twgl.setBuffersAndAttributes(this.gl, this.programInfo, this.vao);
 
+        const cameraPos = this.game.camera.translation;
+
         this.grids.forEach(gridInfo => {
-            const {position, size, instanceCount, lineColor} = gridInfo;
+            const {position, size, instanceCount, lineColor, sx, sy} = gridInfo;
+
+            const offset = [cameraPos[0] % sx, cameraPos[1] % sy];
+            if (offset[0] > 0) {
+                offset[0] = offset[0] - sx;
+            }
+            if (offset[1] > 0) {
+                offset[1] = offset[1] - sy;
+            }
 
             twgl.setAttribInfoBufferFromArray(
                 this.gl,
@@ -243,7 +133,9 @@ class GridOutline {
             );
 
             twgl.setUniforms(this.programInfo, {
-                line_color: lineColor
+                line_color: lineColor,
+                projection: this.game.projection,
+                offset: offset
             });
 
             twgl.drawBufferInfo(this.gl, this.vao, this.gl.TRIANGLE_STRIP, undefined, undefined, instanceCount);
@@ -537,6 +429,10 @@ class Camera {
         return this;
     }
 
+    get translation() {
+        return vec2.clone(this._translation);
+    }
+
     get matrix() {
         return mat4.fromTranslation(mat4.create(), vec4.fromValues(...this._translation, 0, 1));
     }
@@ -544,7 +440,6 @@ class Camera {
 
 
 export {
-    SpriteRenderer,
     TilemapTextureBuilder,
     GridOutline,
     LineRenderer,

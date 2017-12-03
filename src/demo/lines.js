@@ -1,10 +1,11 @@
-import {GridOutline, SpriteRenderer, LineRenderer} from '../js/graphics.js';
+import {GridOutline, LineRenderer} from '../js/graphics.js';
 import {MouseListener} from '../js/input.js';
 import {Sprite} from '../js/components.js';
 import {mat3, vec3} from 'gl-matrix';
 import '../css/app.css'
 
 import {App, initCanvas} from '../js/app.js';
+import {SpriteRenderer} from "../js/graphics/SpriteRenderer";
 
 
 

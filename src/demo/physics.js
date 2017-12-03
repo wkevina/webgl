@@ -2,11 +2,12 @@ import {mat3, vec3} from 'gl-matrix';
 import planck from 'planck-js';
 
 import {App, initCanvas} from '../js/app.js';
-import {GridOutline, SpriteRenderer, LineRenderer} from '../js/graphics.js';
+import {GridOutline, LineRenderer} from '../js/graphics.js';
 import {Sprite, RenderPolygon} from '../js/components.js';
 import {MouseDrawing, CameraPan, CameraBodyTracker} from '../js/controls.js';
 
 import '../css/app.css';
+import {SpriteRenderer} from "../js/graphics/SpriteRenderer";
 
 const app = new App({
     el: initCanvas('content', 'game'),

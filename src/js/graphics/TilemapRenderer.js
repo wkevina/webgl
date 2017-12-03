@@ -1,11 +1,10 @@
 import twgl from '../twgl';
 import {gl} from '../gl';
 import {arraySetter} from '../util';
-import _vs from '../../shaders/tilemap.vert';
-import _fs from '../../shaders/tilemap.frag';
+import vs from '../../shaders/tilemap.vert';
+import fs from '../../shaders/tilemap.frag';
 
-const vs = _vs;
-const fs = _fs;
+let sharedProgram = null;
 
 class TilemapRenderer {
     /*
@@ -32,9 +31,11 @@ class TilemapRenderer {
         this.tileWidth = this.tilemap.tileWidth;
         this.tileHeight = this.tilemap.tileHeight;
 
-
-        //this.programInfo = this.game.getProgram('tilemap');
-        this.programInfo = twgl.createProgramInfo(gl, [vs, fs]);
+        // Share program between renderer instances
+        if (!sharedProgram) {
+            sharedProgram = twgl.createProgramInfo(gl, [vs, fs]);
+            this.programInfo = sharedProgram;
+        }
 
         this.setup();
     }
@@ -166,7 +167,7 @@ class TilemapRenderer {
         gl.useProgram(this.programInfo.program);
 
         twgl.setUniforms(this.programInfo, {
-            projection: this.game.projection,
+            projection: this.game.viewMatrix,
             texture: this.textureArray,
             tile_size: [this.tileWidth, this.tileHeight]
         });

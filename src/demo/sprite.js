@@ -1,7 +1,7 @@
-import {SpriteRenderer,
-        GridOutline} from 'graphics.js';
-import {Sprite} from 'components.js';
-import App from 'app.js';
+import {GridOutline} from '../js/graphics';
+import {SpriteRenderer} from '../js/graphics/SpriteRenderer'
+import {Sprite} from '../js/components';
+import App from '../js/app';
 import '../css/app.css';
 
 const mountPoint = document.getElementById('content');
@@ -18,8 +18,6 @@ const app = new App({
     debug: false,
     clearColor: [0.1, 0.1, 0.1, 1]
 });
-
-app.start();
 
 // app.load({
 //     basePath: 'shaders/',

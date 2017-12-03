@@ -1,8 +1,9 @@
 import {Sprite} from '../js/components';
-import {GridOutline, SpriteRenderer} from '../js/graphics';
+import {GridOutline} from '../js/graphics';
 import {ParticleSystem} from '../js/particle';
 import App from '../js/app';
 import '../css/app.css';
+import {SpriteRenderer} from "../js/graphics/SpriteRenderer";
 
 const mountPoint = document.getElementById('content');
 const canvas = document.createElement('canvas');

@@ -1,10 +1,11 @@
-import {TilemapTextureBuilder, GridOutline, SpriteRenderer} from '../js/graphics.js';
+import {TilemapTextureBuilder, GridOutline} from '../js/graphics.js';
 import {Sprite} from '../js/components.js';
 import {loadImage} from '../js/util.js';
 import '../css/app.css'
 
 import App from 'app.js';
 import {TilemapRenderer} from "../js/graphics/TilemapRenderer";
+import {SpriteRenderer} from "../js/graphics/SpriteRenderer";
 
 
 const mountPoint = document.getElementById('content');
