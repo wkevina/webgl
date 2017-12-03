@@ -7,8 +7,6 @@ import {arraySetter} from 'util';
 const POSITION_COMPONENTS = 2;
 const SIZE_COMPONENTS = 2;
 
-
-
 const GRID_VERTICES = new Float32Array([
     0, 0, // bottom left
     1, 0, // bottom right

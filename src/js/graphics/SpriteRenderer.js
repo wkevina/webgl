@@ -1,4 +1,7 @@
-import twgl from "../twgl";
+import twgl from '../twgl';
+
+import vs from '../../shaders/sprite.vert';
+import fs from '../../shaders/sprite.frag';
 
 const SPRITE_RECT_VERTICES = new Float32Array([
     0, 0, // bottom left
@@ -19,7 +22,7 @@ class SpriteRenderer {
     }
 
     setup() {
-        this.programInfo = this.game.getProgram('sprite');
+        this.programInfo = twgl.createProgramInfo(this.gl, [vs, fs]);
 
         this._arrays = {
             vertex: {
@@ -115,7 +118,7 @@ class SpriteRenderer {
         this.gl.useProgram(this.programInfo.program);
 
         twgl.setUniforms(this.programInfo, {
-            projection: this.game.projection,
+            projection: this.game.viewMatrix,
             texture: this.textureInfo.texture
         });
 

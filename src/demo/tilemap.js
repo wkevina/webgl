@@ -6,6 +6,7 @@ import '../css/app.css'
 import App from 'app.js';
 import {TilemapRenderer} from "../js/graphics/TilemapRenderer";
 import {SpriteRenderer} from "../js/graphics/SpriteRenderer";
+import {CameraPan} from '../js/controls';
 
 
 const mountPoint = document.getElementById('content');
@@ -21,8 +22,10 @@ const app = new App({
         width: 320,
         height: 224
     },
-    pixelMultiplier: 3
+    pixelMultiplier: 2
 });
+
+const cameraControl = new CameraPan(app);
 
 
 app.load({
@@ -92,8 +95,12 @@ async function run() {
         app.adjustViewport();
         app.clear();
 
+
+
         app.framebuffer.attach();
         app.clear();
+
+        app.enableCamera();
 
         renderer.draw({
             x: 0,
@@ -103,6 +110,8 @@ async function run() {
         });
 
         grid.render();
+
+        app.disableCamera();
 
         app.framebuffer.detach();
         app.adjustViewport();
