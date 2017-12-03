@@ -30,6 +30,7 @@ function demoConfig(demo) {
 
 module.exports = {
     entry: {
+        common: './src/js/common.js',
         app: './src/js/start.js',
         test: glob.sync('./test/**/*.test.js'),
         testconfig: './test/test.js',

@@ -1,8 +1,10 @@
 {
   "presets": [
     ["@babel/env", {
-      "exclude": ["transform-arrow-functions", "transform-regenerator"],
-      "modules": false
+      "targets": {
+        "browsers": "last 2 versions",
+        "debug": true
+      }
     }]
   ],
   plugins: ["@babel/plugin-proposal-object-rest-spread"]

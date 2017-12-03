@@ -142,7 +142,7 @@ class ParticleSystem {
 
         twgl.setUniforms(this.programs.simulate, {
             projection: this.game.projection,
-            _bounds: [0, 0, this.game.resolution.width, this.game.resolution.height],
+            bounds: [0, 0, this.game.resolution.width, this.game.resolution.height],
             wallForce: this.game.loader.getTexture('wallForce')
         });
 

@@ -105,7 +105,7 @@ function bresenham(x0, y0, x1, y1, cb){
     while(true){
         cb(x0,y0);
 
-        if ((x0==x1) && (y0==y1)) break;
+        if ((x0===x1) && (y0===y1)) break;
         var e2 = 2*err;
         if (e2 >-dy){ err -= dy; x0  += sx; }
         if (e2 < dx){ err += dx; y0  += sy; }
@@ -161,41 +161,36 @@ app.load({
 async function run() {
     await app.loader.loading;
 
-    // const grid = new GridOutline(app);
-    // grid.addGrid( 8,  8, [0.4, 0.1, 0.9, 0.4], 1);
-    //grid.addGrid(16, 16, [0.1, 0.3, 0.9, 0.4], 0.5);
-    //grid.addGrid(32, 32, [0,   0.5, 0.9, 0.3], 1);
-
     const particles = new ParticleSystem({game: app, maxParticles: MAX_PARTICLES});
 
-    // const framebufferRenderer = new SpriteRenderer({
-    //     game: app,
-    //     textureInfo: {
-    //         texture: app.framebuffer.texture,
-    //         ...app.resolution
-    //     }
-    // });
+    const framebufferRenderer = new SpriteRenderer({
+        game: app,
+        textureInfo: {
+            texture: app.framebuffer.texture,
+            ...app.resolution
+        }
+    });
 
     requestAnimationFrame(function render() {
         app.adjustViewport();
         app.clear();
 
-        //app.framebuffer.attach();
-        //app.clear();
+        app.framebuffer.attach();
+        app.clear();
 
-        //grid.render();
         particles.draw();
 
-        // app.framebuffer.detach();
-        //
-        // app.adjustViewport();
+        app.framebuffer.detach();
 
-        // framebufferRenderer.render([
-        //     new Sprite({
-        //         position: [0, 0],
-        //         size: [app.resolution.width, app.resolution.height]
-        //     })
-        // ]);
+        app.adjustViewport();
+
+        framebufferRenderer.render([
+            new Sprite({
+                position: [0, 0],
+                size: [app.resolution.width, app.resolution.height]
+            })
+        ]);
+
         if (!app.debug) {
             requestAnimationFrame(render);
         }
