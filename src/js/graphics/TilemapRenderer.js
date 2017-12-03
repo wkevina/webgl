@@ -1,5 +1,11 @@
 import twgl from '../twgl';
+import {gl} from '../gl';
 import {arraySetter} from '../util';
+import _vs from '../../shaders/tilemap.vert';
+import _fs from '../../shaders/tilemap.frag';
+
+const vs = _vs;
+const fs = _fs;
 
 class TilemapRenderer {
     /*
@@ -26,13 +32,15 @@ class TilemapRenderer {
         this.tileWidth = this.tilemap.tileWidth;
         this.tileHeight = this.tilemap.tileHeight;
 
-        this.programInfo = this.game.getProgram('tilemap');
+
+        //this.programInfo = this.game.getProgram('tilemap');
+        this.programInfo = twgl.createProgramInfo(gl, [vs, fs]);
 
         this.setup();
     }
 
     setup() {
-        this.bufferInfo = twgl.createBufferInfoFromArrays(this.gl, {
+        this.bufferInfo = twgl.createBufferInfoFromArrays(gl, {
             /* Per-vertex attributes common to each instance. */
             vertex: {
                 data: new Float32Array([
@@ -43,13 +51,13 @@ class TilemapRenderer {
                 ]),
                 numComponents: 2,
                 divisor: 0,
-                drawType: this.gl.STATIC_DRAW
+                drawType: gl.STATIC_DRAW
             },
 
             position: {
                 numComponents: 3,
                 divisor: 1,
-                drawType: this.gl.DYNAMIC_DRAW
+                drawType: gl.DYNAMIC_DRAW
             },
 
             texcoord: {
@@ -61,13 +69,13 @@ class TilemapRenderer {
                 ],
                 numComponents: 2,
                 divisor: 0,
-                drawType: this.gl.STATIC_DRAW
+                drawType: gl.STATIC_DRAW
             },
 
             tile_index: {
                 numComponents: 1,
                 divisor: 1,
-                drawType: this.gl.DYNAMIC_DRAW,
+                drawType: gl.DYNAMIC_DRAW,
                 type: Int16Array
             },
 
@@ -86,7 +94,7 @@ class TilemapRenderer {
             tile_index: new Int16Array(this.maxCells())
         };
 
-        this.vao = twgl.createVertexArrayInfo(this.gl, this.programInfo, this.bufferInfo);
+        this.vao = twgl.createVertexArrayInfo(gl, this.programInfo, this.bufferInfo);
     }
 
     /* Returns maximum number of cells that could be rendered. If the display
@@ -143,19 +151,19 @@ class TilemapRenderer {
             }
         }
 
-        this.gl.useProgram(this.programInfo.program);
-
         twgl.setAttribInfoBufferFromArray(
-            this.gl,
+            gl,
             this.bufferInfo.attribs.position,
             this.arrays.position
         );
 
         twgl.setAttribInfoBufferFromArray(
-            this.gl,
+            gl,
             this.bufferInfo.attribs.tile_index,
             this.arrays.tile_index
         );
+
+        gl.useProgram(this.programInfo.program);
 
         twgl.setUniforms(this.programInfo, {
             projection: this.game.projection,
@@ -163,8 +171,8 @@ class TilemapRenderer {
             tile_size: [this.tileWidth, this.tileHeight]
         });
 
-        twgl.setBuffersAndAttributes(this.gl, this.programInfo, this.vao);
-        twgl.drawBufferInfo(this.gl, this.vao, this.gl.TRIANGLE_STRIP, undefined, undefined, tileCount.x * tileCount.y);
+        twgl.setBuffersAndAttributes(gl, this.programInfo, this.vao);
+        twgl.drawBufferInfo(gl, this.vao, gl.TRIANGLE_STRIP, undefined, undefined, tileCount.x * tileCount.y);
     }
 }
 

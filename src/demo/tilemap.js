@@ -15,18 +15,18 @@ mountPoint.appendChild(canvas);
 
 const app = new App({
     el: canvas,
-    debug: false,
     clearColor: [0.1, 0.1, 0.1, 1],
     resolution: {
         width: 320,
         height: 224
-    }
+    },
+    pixelMultiplier: 3
 });
 
 
 app.load({
     basePath: 'shaders/',
-    programs: ['grid', 'tilemap', 'sprite']
+    programs: ['tilemap', 'grid', 'sprite']
 });
 
 
@@ -85,10 +85,7 @@ async function run() {
     });
 
     const grid = new GridOutline(app);
-    //grid.addGrid( 8,  8, [0.4, 0.1, 0.9, 0.4], 1);
-    //grid.addGrid(16, 16, [0.1, 0.3, 0.9, 0.4], 1);
-    //grid.addGrid(32, 32, [0,   0.5, 0.9, 0.3], 1);
-
+    grid.addGrid(16, 16, [1, 1, 1, 0.5], 1);
 
     requestAnimationFrame(function render() {
         app.adjustViewport();
@@ -112,11 +109,13 @@ async function run() {
         framebufferRenderer.render([
             new Sprite({
                 position: [0, 0],
-                size: [app.resolution.width - 1, app.resolution.height - 1]
+                size: [app.resolution.width, app.resolution.height]
             })
         ]);
 
-        requestAnimationFrame(render);
+        if (!app.debug) {
+            requestAnimationFrame(render);
+        }
     });
 }
 

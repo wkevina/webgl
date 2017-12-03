@@ -43,6 +43,7 @@ class App {
         this.clearColor = options.clearColor || [0.4, 0.4, 0.4, 1];
         this.resolution = options.resolution || { width: 352, height: 224 };
         this.pixelMultiplier = options.pixelMultiplier || 2;
+        this.debug = options.debug;
 
         if (typeof options.el === 'string') {
             this.canvas = document.getElementById(options.el);
@@ -53,7 +54,7 @@ class App {
         // create rendering context
         this.gl = this.canvas.getContext('webgl2');
 
-        if (options.debug) {
+        if (this.debug) {
             WebGLDebugUtils.init(this.gl);
             this.gl = WebGLDebugUtils.makeDebugContext(this.gl, undefined, logGLCall);
         }
