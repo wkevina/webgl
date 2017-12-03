@@ -21,9 +21,7 @@ uniform lowp ivec2 tile_size;
 #define tile_coord(idx) (ivec3(idx & TILE_X_MASK, (idx & TILE_Y_MASK) >> TILE_Y_SHIFT, (idx & TILE_Z_MASK) >> TILE_Z_SHIFT))
 
 void main() {
-    ivec3 tile_coords = tile_coord (v_tile_index);
+    ivec3 tile_coords = tile_coord(v_tile_index);
 
     out_color = texelFetch(texture, ivec3(tile_coords.xy * tile_size + ivec2(v_tex_coord), tile_coords.z), 0);
-
-    //out_color = vec4(1.);
 }
