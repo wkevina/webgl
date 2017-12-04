@@ -95,8 +95,6 @@ async function run() {
         app.adjustViewport();
         app.clear();
 
-
-
         app.framebuffer.attach();
         app.clear();
 

@@ -1,20 +1,24 @@
 import {GridOutline} from '../js/graphics';
-import {SpriteRenderer} from '../js/graphics/SpriteRenderer'
+import {SpriteRenderer} from '../js/graphics/SpriteRenderer';
+import {SpriteAtlas, detectSpriteBounds} from '../js/graphics/SpriteAtlas';
+import {SpriteAtlasRenderer} from '../js/graphics/SpriteAtlasRenderer';
 import {Sprite} from '../js/components';
+import {loadImage} from '../js/util';
 import App from '../js/app';
 import '../css/app.css';
 
 const mountPoint = document.getElementById('content');
 const canvas = document.createElement('canvas');
-canvas.classList.add('game')
+canvas.classList.add('game');
 mountPoint.appendChild(canvas);
 
 const app = new App({
     el: canvas,
     resolution: {
-        width: 640,
-        height: 480
+        width: 320,
+        height: 224
     },
+    pixelMultiplier: 2,
     debug: false,
     clearColor: [0.1, 0.1, 0.1, 1]
 });
@@ -42,9 +46,31 @@ app.load({
     }
 });
 
-console.log(app.gl.getParameter(app.gl.MAX_ARRAY_TEXTURE_LAYERS));
-
 async function run() {
+    const atlas = new SpriteAtlas(512, 512, 2);
+    const atlasRenderer = new SpriteAtlasRenderer({
+        game: app,
+        atlas
+    });
+
+    (img => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+
+        const data = ctx.getImageData(0, 0, img.width, img.height);
+
+        const spriteBounds = detectSpriteBounds(data, true);
+
+        spriteBounds.forEach((rect, idx) => {
+            atlas.add(ctx, `pk_${idx}`, rect);
+        });
+    })((await loadImage('img/plague_knight.png')));
+
+    //atlas.downloadLayers('plague_knight', 2);
+
     await app.loader.loading;
 
     const renderer = new SpriteRenderer({
@@ -55,10 +81,18 @@ async function run() {
         }
     });
 
+    const framebufferRenderer = new SpriteRenderer({
+        game: app,
+        textureInfo: {
+            texture: app.framebuffer.texture,
+            ...app.resolution
+        }
+    });
+
     const grid = new GridOutline(app);
-    grid.addGrid( 8,  8, [0.4, 0.1, 0.9, 0.4], 0.25);
-    grid.addGrid(16, 16, [0.1, 0.3, 0.9, 0.4], 0.5);
-    grid.addGrid(32, 32, [0,   0.5, 0.9, 0.3], 1);
+    // grid.addGrid( 8,  8, [0.4, 0.1, 0.9, 0.4], 0.25);
+    // grid.addGrid(16, 16, [0.1, 0.3, 0.9, 0.4], 0.5);
+    //grid.addGrid(32, 32, [1, 1, 1, 1], 0.5);
 
     const sprites = [];
     // for (let i = 0; (i < app.resolution.width / 32); ++i) {
@@ -76,11 +110,26 @@ async function run() {
         })
     );
 
+    let angle = 0;
+
     requestAnimationFrame(function render() {
-        app.adjustViewport();
+        app.framebuffer.attach();
         app.clear();
-        renderer.render(sprites);
-        grid.render();
+        app.enableCamera();
+
+        atlasRenderer.renderLayer(0, [160, 224/2], [0.5, 0.5], angle);
+
+        app.framebuffer.detach();
+        app.adjustViewport();
+
+        framebufferRenderer.render([
+            new Sprite({
+                position: [0, 0],
+                size: [app.resolution.width, app.resolution.height]
+            })
+        ]);
+
+        angle += 0.001;
         requestAnimationFrame(render);
     });
 }

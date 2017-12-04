@@ -4,6 +4,7 @@
   "description": "",
   "main": "app.js",
   "dependencies": {
+    "downloadjs": "^1.4.7",
     "gl-matrix": "",
     "global": "^4.3.2",
     "planck-js": "^0.1.34",
