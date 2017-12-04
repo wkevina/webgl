@@ -64,7 +64,7 @@ function hsl2rgb (h, s, l) {
     return [r, g, b];
 }
 
-function attachFramebuffer(gl, width, height) {
+function offscreenFramebufferAttachment(gl, width, height) {
     const framebuffer = gl.createFramebuffer();
     const texture = gl.createTexture();
 
@@ -116,4 +116,4 @@ function loadImage(src) {
     });
 }
 
-export {arraySetter, hsl2rgb, attachFramebuffer, loadImage};
+export {arraySetter, hsl2rgb, offscreenFramebufferAttachment, loadImage};

@@ -1,8 +1,8 @@
 import {Loader} from 'resource.js';
-import {CoordinateConversions, Camera} from 'graphics.js';
+import {CoordinateConversions, Camera, SpriteRenderer} from 'graphics.js';
 import {mat3, mat4} from 'gl-matrix';
 import {registerContext, gl} from 'gl.js';
-import {attachFramebuffer} from 'util.js';
+import {offscreenFramebufferAttachment} from 'util.js';
 import 'vendor/webgl-debug.js'
 
 //import * as glMatrix from 'gl-matrix';
@@ -64,7 +64,7 @@ class App {
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         gl.enable(gl.BLEND);
 
-        this.framebuffer = attachFramebuffer(gl, this.resolution.width, this.resolution.height);
+        this.framebuffer = offscreenFramebufferAttachment(gl, this.resolution.width, this.resolution.height);
         this.loader = new Loader();
         this.projection = mat4.ortho(mat4.create(), 0, this.resolution.width, 0, this.resolution.height, -1, 1);
         this.camera = new Camera(this.resolution);

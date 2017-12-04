@@ -22,7 +22,10 @@ class SpriteRenderer {
     }
 
     setup() {
-        this.programInfo = twgl.createProgramInfo(this.gl, [vs, fs]);
+        if (!SpriteRenderer.sharedProgram) {
+            SpriteRenderer.sharedProgram = twgl.createProgramInfo(this.gl, [vs, fs]);
+            this.programInfo = sharedProgram;
+        }
 
         this._arrays = {
             vertex: {

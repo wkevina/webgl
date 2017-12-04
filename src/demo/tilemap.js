@@ -22,7 +22,7 @@ const app = new App({
         width: 320,
         height: 224
     },
-    pixelMultiplier: 2
+    pixelMultiplier: 3
 });
 
 const cameraControl = new CameraPan(app);
@@ -46,6 +46,37 @@ app.load({
 //     }
 // });
 
+class RenderToTexture {
+    constructor(resolution) {
+        this.offscreenFramebuffer = offscreenFramebufferAttachment(gl, resolution.width, resolution.height);
+
+        this.blitter = new SpriteRenderer({
+            game: app,
+            textureInfo: {
+                texture: this.offscreenFramebuffer.texture,
+                ...resolution
+            }
+        });
+
+        this.sprite = new Sprite({
+            position: [0, 0],
+            size: [resolution.width, resolution.height]
+        });
+    }
+
+    capture() {
+        this.offscreenFramebuffer.attach();
+    }
+
+    stopCapture() {
+        this.offscreenFramebuffer.detach();
+    }
+
+    render() {
+        framebufferRenderer.render([this.sprite]);
+    }
+}
+
 
 const tilemapTex = new TilemapTextureBuilder({
     tileWidth: 16,
@@ -60,13 +91,7 @@ async function run() {
 
     tilemapTex.addTiles(await loadImage('img/mario.png'));
 
-    const framebufferRenderer = new SpriteRenderer({
-        game: app,
-        textureInfo: {
-            texture: app.framebuffer.texture,
-            ...app.resolution
-        }
-    });
+    const offscreenTexture = new RenderToTexture(app.resolution);
 
     const renderer = new TilemapRenderer({
         game: app,
@@ -95,7 +120,7 @@ async function run() {
         app.adjustViewport();
         app.clear();
 
-        app.framebuffer.attach();
+        offscreenTexture.capture();
         app.clear();
 
         app.enableCamera();
@@ -109,17 +134,12 @@ async function run() {
 
         grid.render();
 
-        app.disableCamera();
+        offscreenTexture.stopCapture();
 
-        app.framebuffer.detach();
+        app.disableCamera();
         app.adjustViewport();
 
-        framebufferRenderer.render([
-            new Sprite({
-                position: [0, 0],
-                size: [app.resolution.width, app.resolution.height]
-            })
-        ]);
+        offscreenTexture.render();
 
         if (!app.debug) {
             requestAnimationFrame(render);
