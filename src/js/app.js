@@ -77,17 +77,20 @@ class App {
         const width = this.resolution.width * this.pixelMultiplier;
         const height = this.resolution.height * this.pixelMultiplier;
 
-        this.canvas.width = width;
-        this.canvas.height = height;
         this.canvas.style.width = `${width}px`;
         this.canvas.style.height = `${height}px`;
+
+        this.canvas.width = width * (window.devicePixelRatio || 1);
+        this.canvas.height = height * (window.devicePixelRatio || 1);
     }
 
     adjustViewport() {
-        const canvas_width = this.canvas.clientWidth;
-        const canvas_height = this.canvas.clientHeight;
+        // Use device pixels rather than CSS pixels to set viewport
+        // This will handle devicePixelRatios different than 1
+        const canvas_width = this.canvas.width;
+        const canvas_height = this.canvas.height;
 
-        this.gl.viewport(0, 0, canvas_width, canvas_height);
+        this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
 
         this._canvasToWorld = CoordinateConversions.canvasToWorldMatrix(
             this.camera.matrix,
