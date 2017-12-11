@@ -137,40 +137,71 @@ class SpriteAtlasRenderer {
     }
 
     render(sprites) {
-        const positions = new Float32Array(2 * sprites.length);
-        const sizes = new Float32Array(2 * sprites.length);
-        const offsets = new Float32Array(2 * sprites.length);
+        const position = new Float32Array(2 * sprites.length);
+        const size = new Float32Array(2 * sprites.length);
+        const offset = new Float32Array(2 * sprites.length);
+        const texture_rect = new Float32Array(4 * sprites.length);
+        const layer = new Float32Array(sprites.length);
+        const angle = new Float32Array(sprites.length);
 
         sprites.forEach((sprite, spriteIndex) => {
+            const coords = this.atlas.getAtlasCoordinates(sprite.textureName);
+
             sprite.position.forEach((v, compIndex) => {
-                positions[spriteIndex * 2 + compIndex] = v;
+                position[spriteIndex * 2 + compIndex] = v;
             });
 
-            sprite.size.forEach((v, compIndex) => {
-                sizes[spriteIndex * 2 + compIndex] = v;
+            coords.rect.slice(2).forEach((v, compIndex) => {
+                size[spriteIndex * 2 + compIndex] = v;
             });
 
             sprite.offset.forEach((v, compIndex) => {
-                offsets[spriteIndex * 2 + compIndex] = v;
+                offset[spriteIndex * 2 + compIndex] = v;
             });
+
+            coords.rect.forEach((v, compIndex) => {
+                texture_rect[spriteIndex * 4 + compIndex] = v;
+            });
+
+            layer[spriteIndex] = coords.layer;
+
+            angle[spriteIndex] = sprite.angle;
         });
 
         twgl.setAttribInfoBufferFromArray(
             this.gl,
             this.bufferInfo.attribs.position,
-            positions
+            position
         );
 
         twgl.setAttribInfoBufferFromArray(
             this.gl,
             this.bufferInfo.attribs.size,
-            sizes
+            size
         );
 
         twgl.setAttribInfoBufferFromArray(
             this.gl,
             this.bufferInfo.attribs.offset,
-            offsets
+            offset
+        );
+
+        twgl.setAttribInfoBufferFromArray(
+            this.gl,
+            this.bufferInfo.attribs.texture_rect,
+            texture_rect
+        );
+
+        twgl.setAttribInfoBufferFromArray(
+            this.gl,
+            this.bufferInfo.attribs.layer,
+            layer
+        );
+
+        twgl.setAttribInfoBufferFromArray(
+            this.gl,
+            this.bufferInfo.attribs.angle,
+            angle
         );
 
         this.gl.useProgram(this.programInfo.program);

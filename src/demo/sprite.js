@@ -1,9 +1,12 @@
+import _ from 'underscore';
+
 import {GridOutline} from '../js/graphics';
 import {SpriteRenderer} from '../js/graphics/SpriteRenderer';
 import {SpriteAtlas, detectSpriteBounds} from '../js/graphics/SpriteAtlas';
 import {SpriteAtlasRenderer} from '../js/graphics/SpriteAtlasRenderer';
-import {Sprite} from '../js/components';
+import {Sprite} from '../js/graphics/Sprite';
 import {loadImage} from '../js/util';
+
 import App from '../js/app';
 import '../css/app.css';
 
@@ -34,17 +37,6 @@ app.load({
     programs: ['sprite', 'grid', 'tilemap']
 });
 
-app.load({
-    basePath: 'img/',
-    textures: {
-        sonic: {
-            src: 'img/Sonic1.gif',
-            mag: app.gl.NEAREST,
-            min: app.gl.LINEAR,
-            flipY: true
-        }
-    }
-});
 
 async function run() {
     const atlas = new SpriteAtlas(512, 512, 2);
@@ -62,7 +54,21 @@ async function run() {
 
         const data = ctx.getImageData(0, 0, img.width, img.height);
 
-        const spriteBounds = detectSpriteBounds(data, true);
+        const {spriteBounds, keyColor} = detectSpriteBounds(data, true);
+
+        for (let i = 0; i < data.data.length / 4; ++i) {
+            const pixel = data.data.slice(i*4, i*4 + 4);
+
+            if (pixel[0] === keyColor[0] &&
+                pixel[1] === keyColor[1] &&
+                pixel[2] === keyColor[2] &&
+                pixel[3] === keyColor[3]
+            ) {
+                data.data.set([0, 0, 0, 0], i*4);
+            }
+        }
+
+        ctx.putImageData(data, 0, 0);
 
         spriteBounds.forEach((rect, idx) => {
             atlas.add(ctx, `pk_${idx}`, rect);
@@ -72,14 +78,6 @@ async function run() {
     //atlas.downloadLayers('plague_knight', 2);
 
     await app.loader.loading;
-
-    const renderer = new SpriteRenderer({
-        game: app,
-        textureInfo: {
-            texture: app.loader.getTexture('sonic'),
-            ...app.resolution
-        }
-    });
 
     const framebufferRenderer = new SpriteRenderer({
         game: app,
@@ -103,21 +101,42 @@ async function run() {
     //     break;
     // }
 
-    sprites.push(
-        new Sprite({
-            position: [10, 10],
-            size: [300, 734]
-        })
-    );
+    // _.range(10).forEach(() => {
+    //    const sprite = new Sprite({
+    //        position: [Math.random() * app.resolution.width, Math.random() * app.resolution.height],
+    //        textureName: `pk_${Math.floor(Math.random() * 10)}`,
+    //        angle: Math.random() * Math.PI
+    //    });
+    //
+    //     sprites.push(sprite);
+    // });
 
-    let angle = 0;
+    const plague_knight = new Sprite({
+        position: [160, 112],
+        offset: [0.5, 0.5],
+        textureName: 'pk_0'
+    });
+
+    let frame = 0, index = 0;
 
     requestAnimationFrame(function render() {
         app.framebuffer.attach();
         app.clear();
         app.enableCamera();
 
-        atlasRenderer.renderLayer(0, [160, 224/2], [0.5, 0.5], angle);
+        plague_knight.textureName = atlas.entries[index][0];
+
+        if (frame % 5 === 0) {
+            index++;
+        }
+
+        if (index >= atlas.entries.length) {
+            index = 0;
+        }
+
+        //atlasRenderer.renderLayer(0, [160, 224/2], [0.5, 0.5], angle);
+        atlasRenderer.render([plague_knight]);
+        atlasRenderer.render(sprites);
 
         app.framebuffer.detach();
         app.adjustViewport();
@@ -129,8 +148,9 @@ async function run() {
             })
         ]);
 
-        angle += 0.001;
+        //plague_knight.angle += 0.001;
         requestAnimationFrame(render);
+        frame++;
     });
 }
 

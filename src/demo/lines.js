@@ -1,6 +1,6 @@
 import {GridOutline, LineRenderer} from '../js/graphics.js';
 import {MouseListener} from '../js/input.js';
-import {Sprite} from '../js/components.js';
+import {Sprite} from '../js/graphics/Sprite.js';
 import {mat3, vec3} from 'gl-matrix';
 import '../css/app.css'
 

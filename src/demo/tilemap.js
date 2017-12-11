@@ -1,5 +1,5 @@
 import {TilemapTextureBuilder, GridOutline} from '../js/graphics.js';
-import {Sprite} from '../js/components.js';
+import {Sprite} from '../js/graphics/Sprite.js';
 import {loadImage} from '../js/util.js';
 import '../css/app.css'
 

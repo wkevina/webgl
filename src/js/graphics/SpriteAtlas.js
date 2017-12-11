@@ -108,11 +108,7 @@ class SpriteAtlas {
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 0);
 
         this.map.set(name, destRect);
-        this.entries.push(destRect);
-    }
-
-    lookup(name) {
-
+        this.entries.push([name, destRect]);
     }
 
     readback(limit) {
@@ -157,6 +153,15 @@ class SpriteAtlas {
             ctx.globalCompositeOperation = 'source-over';
             download(canvas.toDataURL(), `${prefix}_${idx}.png`);
         });
+    }
+
+    getAtlasCoordinates(name) {
+        const coords = this.map.get(name);
+
+        return {
+            rect: [coords.x, coords.y, coords.width, coords.height],
+            layer: coords.layer
+        }
     }
 }
 
@@ -276,7 +281,10 @@ const detectSpriteBounds = (img, flipY = false) => {
         );
     }
 
-    return edges;
+    return {
+        spriteBounds: edges,
+        keyColor: boundsColor
+    };
 };
 
 export {SpriteAtlas,

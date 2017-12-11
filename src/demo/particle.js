@@ -1,4 +1,4 @@
-import {Sprite} from '../js/components';
+import {Sprite} from '../js/graphics/Sprite';
 import {GridOutline} from '../js/graphics';
 import {ParticleSystem} from '../js/particle';
 import App from '../js/app';
