@@ -78,7 +78,7 @@ class SpriteRenderer {
         this.vao = twgl.createVertexArrayInfo(this.gl, this.programInfo, this.bufferInfo);
     }
 
-    render(sprites) {
+    render(sprites, projection) {
         const positions = new Float32Array(2 * sprites.length);
         const sizes = new Float32Array(2 * sprites.length);
         const offsets = new Float32Array(2 * sprites.length);
@@ -118,7 +118,7 @@ class SpriteRenderer {
         this.gl.useProgram(this.programInfo.program);
 
         twgl.setUniforms(this.programInfo, {
-            projection: this.game.viewMatrix,
+            projection: projection,
             texture: this.textureInfo.texture
         });
 

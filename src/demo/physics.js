@@ -1,4 +1,4 @@
-import {mat3, vec3} from 'gl-matrix';
+import {mat3, vec3, vec2} from 'gl-matrix';
 import planck from 'planck-js';
 
 import {App, initCanvas} from '../js/app.js';
@@ -16,7 +16,7 @@ const app = new App({
     clearColor: [0.1, 0.1, 0.1, 1],
     resolution: {
         width: 1400,
-        height: 780
+        height: 728
     },
     pixelMultiplier: 1
 });
@@ -29,7 +29,7 @@ app.load({
 
 const cameraPanControl = new CameraPan(app);
 
-const PIXEL_SCALE = 50;
+const PIXEL_SCALE = 10;
 
 
 const shapeFromMouse = (app, engine) => {
@@ -92,47 +92,263 @@ const buildTheWall = (engine, bounds, thickness) => {
 };
 
 
-var pl = planck, Vec2 = pl.Vec2;
+const pl = planck, Vec2 = pl.Vec2;
 
-var world = pl.World(Vec2(0, -10));
+const world = pl.World(Vec2(0, -10));
+//world.setGravity({x: 0, y: -5});
 
-var bar = world.createBody();
-bar.createFixture(pl.Edge(Vec2(-20, 5), Vec2(20, 5)));
-bar.setAngle(0.2);
+const bar = world.createBody();
+// bar.createFixture(pl.Edge(Vec2(-15, -7), Vec2(15, -7)));
+// bar.createFixture(pl.Edge(Vec2(-15, 7), Vec2(15, 7)));
+//
+// bar.createFixture(pl.Edge(Vec2(-15, -7), Vec2(-15, 7)));
+// bar.createFixture(pl.Edge(Vec2(15, -7), Vec2(15, 7)));
 
-for (var i = -2; i <= 2; i++) {
-    for (var j = -2; j <= 2; j++) {
-        var box = world.createBody().setDynamic();
-        box.createFixture(pl.Box(0.5, 0.5));
-        box.setPosition(Vec2(i * 1, -j * 1 + 20));
+// bar.createFixture(pl.Chain([
+//     Vec2(-15, -7),
+//     Vec2(15, -7),
+//     Vec2(15, 7),
+//     Vec2(-15, 7)
+// ], true));
+
+
+bar.createFixture(pl.Chain([
+    Vec2(-1000, -500),
+    Vec2(100, -500),
+    Vec2(150, -300),
+    Vec2(1000, -100)
+]), {friction: 1});
+
+
+// for (var i = -2; i <= 2; i++) {
+//     for (var j = -2; j <= 2; j++) {
+//         var box = world.createBody().setDynamic();
+//         box.createFixture(pl.Box(0.5, 0.5));
+//         box.setPosition(Vec2(i, -j));
+//         box.setMassData({
+//             mass: 1,
+//             center: Vec2(),
+//             I: 1
+//         })
+//     }
+// }
+
+let box = world.createBody().setDynamic();
+box.createFixture(pl.Box(0.5, 0.5));
+box.setPosition(Vec2(2, 10));
+box.setAngle(10);
+box.setAngularVelocity(1);
+box.setMassData({
+    mass: 1,
+    center: Vec2(),
+    I: 1
+});
+
+box = world.createBody().setDynamic();
+box.createFixture(pl.Box(1, 1));
+box.setPosition(Vec2(0, -5));
+box.setAngularVelocity(-500);
+box.setMassData({
+    mass: 1,
+    center: Vec2(),
+    I: 1
+});
+
+box = world.createBody().setDynamic();
+box.createFixture(pl.Box(1, 1));
+box.setPosition(Vec2(8, 10));
+box.setAngularVelocity(2);
+box.setMassData({
+    mass: 1,
+    center: Vec2(),
+    I: 1
+});
+
+let ball = world.createBody().setDynamic();
+ball.createFixture(pl.Circle(3), {friction: 1});
+ball.setPosition(Vec2(-200, 0));
+ball.setAngularVelocity(0);
+ball.setLinearVelocity(Vec2(0, 0));
+ball.setMassData({
+    mass: 1,
+    center: Vec2(),
+    I: 5
+});
+
+
+function transformVertices(vertices, transform) {
+    return vertices.map(vertex => {
+        const out = vec2.fromValues(vertex.x, vertex.y);
+        vec2.transformMat3(out, out, transform);
+        return {x: out[0], y: out[1]};
+    });
+}
+
+function circle(shape, transform, segments = 10) {
+    const radius = shape.m_radius;
+    const vertices = [];
+
+    vertices.push(Vec2(0, 0));
+
+    vertices.push(Vec2(radius, 0));
+
+    for (let i = 1; i < segments; i++) {
+        const x = radius * Math.cos(2 * Math.PI / segments * i);
+        const y = radius * Math.sin(2 * Math.PI / segments * i);
+        vertices.push(Vec2(x, y));
+    }
+
+    const scaledVertices = transformVertices(vertices, transform);
+    vertices.length = 0;
+
+    scaledVertices.forEach((vertex, index) => {
+        vertices.push(vertex.x, vertex.y);
+
+        if (index > 0) {
+            vertices.push(vertex.x, vertex.y);
+        }
+    });
+
+    const firstVertex = scaledVertices[1];
+
+    vertices.push(firstVertex.x, firstVertex.y);
+
+    return vertices;
+}
+
+function edge(shape, transform) {
+    const vertices = [];
+
+    const scaledVertices = transformVertices([shape.m_vertex1, shape.m_vertex2], transform);
+
+    scaledVertices.forEach((vertex, index) => {
+        vertices.push(vertex.x, vertex.y);
+
+        if (index > 0 && index < scaledVertices.length - 1) {
+            vertices.push(vertex.x, vertex.y);
+        }
+    });
+
+    return vertices;
+}
+
+function polygon(shape, transform) {
+    const vertices = [];
+
+    const scaledVertices = transformVertices(shape.m_vertices, transform);
+
+    scaledVertices.forEach((vertex, index) => {
+        vertices.push(vertex.x, vertex.y);
+
+       if (index > 0) {
+           vertices.push(vertex.x, vertex.y);
+       }
+    });
+
+    const firstVertex = scaledVertices[0];
+
+    vertices.push(firstVertex.x, firstVertex.y);
+
+    return vertices;
+}
+
+function chain(shape, transform) {
+    const vertices = [];
+
+    const scaledVertices = transformVertices(shape.m_vertices, transform);
+
+    scaledVertices.forEach((vertex, index) => {
+        vertices.push(vertex.x, vertex.y);
+
+        if (index > 0 && index < scaledVertices.length - 1) {
+            vertices.push(vertex.x, vertex.y);
+        }
+    });
+
+    return vertices;
+}
+
+function renderWorld(world, renderer) {
+    const lines = [];
+    for (let b = world.getBodyList(); b; b = b.getNext()) {
+        const p = b.getPosition();
+        const angle = b.getAngle();
+
+        const modelTransform = mat3.fromScaling(mat3.create(), [PIXEL_SCALE, PIXEL_SCALE]);
+        mat3.translate(modelTransform, modelTransform, [p.x, p.y]);
+        mat3.rotate(modelTransform, modelTransform, angle);
+
+
+
+        for (let f = b.getFixtureList(); f; f = f.getNext()) {
+            const type = f.getType();
+            const shape = f.getShape();
+            if (type === 'circle') {
+                lines.push(...circle(shape, modelTransform));
+            }
+            if (type === 'edge') {
+                lines.push(...edge(shape, modelTransform));
+            }
+            if (type === 'polygon') {
+                lines.push(...polygon(shape, modelTransform));
+            }
+            if (type == 'chain') {
+                lines.push(...chain(shape, modelTransform));
+            }
+        }
+    }
+
+    renderer.render(lines);
+}
+
+function bodyChain(endpointA, endpointB, segmentLength = 2, thickness = 0.25) {
+    const chainLength = Math.sqrt((endpointA.x - endpointB.x)**2 + (endpointA.y - endpointB.y)**2);
+    const seg_count = Math.ceil(chainLength / segmentLength);
+    const chainDirection = endpointB.clone().sub(endpointA);
+    chainDirection.normalize();
+    const angle = Math.atan(chainDirection.y / chainDirection.x);
+
+    const segments = [];
+    const joints = [];
+
+
+    for (let i = 0; i < seg_count; i++) {
+        const box = world.createBody().setDynamic();
+        box.createFixture(pl.Box(segmentLength/4, thickness));
         box.setMassData({
             mass: 1,
             center: Vec2(),
             I: 1
-        })
+        });
+
+        box.setPosition(Vec2.add(endpointA, chainDirection.clone().mul(i * segmentLength).add(Vec2.mul(chainDirection, segmentLength / 4))));
+
+        segments.push(box);
     }
+
+    const ropeDef = {collideConnected: false};
+    ropeDef.maxLength = segmentLength / 4;
+    ropeDef.localAnchorA = Vec2(segmentLength / 4, 0);
+    ropeDef.localAnchorB = Vec2(-segmentLength / 4, 0);
+
+    for (let i = 1; i < segments.length; i++) {
+        const segA = segments[i - 1];
+        const segB = segments[i];
+
+        joints.push(world.createJoint(pl.RopeJoint(ropeDef, segA, segB)));
+    }
+
+    return {
+        segments,
+        joints
+    };
 }
 
-function renderWorld(world, renderer) {
-    for (var b = world.getBodyList(); b; b = b.getNext()) {
-        for (var f = b.getFixtureList(); f; f = f.getNext()) {
-            var type = f.getType();
-            var shape = f.getShape();
-            if (type == 'circle') {
-                f.ui = viewer.drawCircle(shape, this._options);
-            }
-            if (type == 'edge') {
-                f.ui = viewer.drawEdge(shape, this._options);
-            }
-            if (type == 'polygon') {
-                f.ui = viewer.drawPolygon(shape, this._options);
-            }
-            if (type == 'chain') {
-                f.ui = viewer.drawChain(shape, this._options);
-            }
-        }
-    }
-}
+const c = bodyChain(Vec2(-200, 0), Vec2(0, 0));
+
+world.createJoint(pl.RevoluteJoint({collideConnected: false, localAnchorA: Vec2(3, 0), localAnchorB: Vec2(-1/2, 0)}, ball, c.segments[0]));
+
+world.createJoint(pl.RevoluteJoint({collideConnected: false, localAnchorA: Vec2(1/4, 0), localAnchorB: Vec2(0, 0)}, c.segments[c.segments.length - 1], bar));
 
 async function run() {
     await app.loader.loading;
@@ -183,39 +399,28 @@ async function run() {
     });
 
     const grid = new GridOutline(app);
-    grid.addGrid(20, 20, [0.4, 0.1, 0.9, 0.4], 1);
+    grid.addGrid(100, 100, [0.4, 0.1, 0.9, 0.4], 1);
 
     const lineRenderer = new LineRenderer({
         game: app
     });
 
-    requestAnimationFrame(function render() {
-        // Engine.update(engine, 1000 / 60);
-        // const bodies = Composite.allBodies(engine.world);
-        //
-        // const polygons = [];
-        //
-        // bodies.forEach(body => {
-        //     const parts = body.parts.length > 1 ? body.parts.slice(1) : body.parts;
-        //
-        //     parts.forEach(part => {
-        //         const vertices = part.vertices.map(vertex => [vertex.x, vertex.y]);
-        //
-        //         polygons.push(new RenderPolygon({
-        //             vertices,
-        //             position: [body.position.x, body.position.y],
-        //             angle: body.angle
-        //         }));
-        //     });
-        // });
+    app.camera.centerAt(0, 0);
 
-        world.step(1000 / 60);
+    requestAnimationFrame(function render() {
+        world.step(1/60);
+
+
+        const p = ball.getPosition();
+        app.camera.centerAt(p.x * PIXEL_SCALE, p.y * PIXEL_SCALE);
 
         app.adjustViewport();
         app.clear();
 
         app.framebuffer.attach();
         app.clear();
+
+        app.enableCamera();
 
         grid.render();
 
@@ -228,6 +433,7 @@ async function run() {
         // }
 
         app.framebuffer.detach();
+        app.disableCamera();
         app.adjustViewport();
 
         framebufferRenderer.render([
@@ -235,7 +441,8 @@ async function run() {
                 position: [0, 0],
                 size: [app.resolution.width, app.resolution.height]
             })
-        ]);
+        ],
+            app.projection);
 
         requestAnimationFrame(render);
     });

@@ -285,7 +285,7 @@ class LineRenderer {
     constructor(opts) {
 
         const {game, maxLines} = {
-            maxLines: 256,
+            maxLines: 32768,
             ...opts
         };
 
@@ -317,7 +317,7 @@ class LineRenderer {
         twgl.setBuffersAndAttributes(gl, this.programInfo, this.vao);
     }
 
-    render(lines, color) {
+    render(lines, color = [1, 1, 1, 1]) {
         // copy data from lines to this.arrays.position
         this.arrays.position.set(lines);
 
