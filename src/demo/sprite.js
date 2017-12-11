@@ -126,7 +126,7 @@ async function run() {
 
         plague_knight.textureName = atlas.entries[index][0];
 
-        if (frame % 5 === 0) {
+        if (frame % 4 === 0) {
             index++;
         }
 
@@ -141,12 +141,13 @@ async function run() {
         app.framebuffer.detach();
         app.adjustViewport();
 
-        framebufferRenderer.render([
-            new Sprite({
+        framebufferRenderer.render(
+            [new Sprite({
                 position: [0, 0],
                 size: [app.resolution.width, app.resolution.height]
-            })
-        ]);
+            })],
+            app.projection
+        );
 
         //plague_knight.angle += 0.001;
         requestAnimationFrame(render);
