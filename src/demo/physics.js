@@ -165,15 +165,15 @@ box.setMassData({
 });
 
 let ball = world.createBody().setDynamic();
-ball.createFixture(pl.Circle(3), {friction: 1});
+ball.createFixture(pl.Circle(3), {friction: 1, density: 0.2});
 ball.setPosition(Vec2(-200, 0));
 ball.setAngularVelocity(0);
 ball.setLinearVelocity(Vec2(0, 0));
-ball.setMassData({
-    mass: 1,
-    center: Vec2(),
-    I: 5
-});
+// ball.setMassData({
+//     density: 1,
+//     center: Vec2(),
+//     I: 5
+// });
 
 
 function transformVertices(vertices, transform) {
@@ -301,7 +301,7 @@ function renderWorld(world, renderer) {
     renderer.render(lines);
 }
 
-function bodyChain(endpointA, endpointB, segmentLength = 2, thickness = 0.25) {
+function bodyChain(endpointA, endpointB, segmentLength = 5, thickness = 0.25) {
     const chainLength = Math.sqrt((endpointA.x - endpointB.x)**2 + (endpointA.y - endpointB.y)**2);
     const seg_count = Math.ceil(chainLength / segmentLength);
     const chainDirection = endpointB.clone().sub(endpointA);
@@ -314,12 +314,13 @@ function bodyChain(endpointA, endpointB, segmentLength = 2, thickness = 0.25) {
 
     for (let i = 0; i < seg_count; i++) {
         const box = world.createBody().setDynamic();
-        box.createFixture(pl.Box(segmentLength/4, thickness));
-        box.setMassData({
-            mass: 1,
-            center: Vec2(),
-            I: 1
-        });
+        box.createFixture(pl.Box(segmentLength/4, thickness), {density: 0.02});
+        // box.setMassData({
+        //     mass: 1,
+        //     center: Vec2(),
+        //     I: 1
+        // });
+        box.resetMassData();
 
         box.setPosition(Vec2.add(endpointA, chainDirection.clone().mul(i * segmentLength).add(Vec2.mul(chainDirection, segmentLength / 4))));
 
@@ -408,7 +409,7 @@ async function run() {
     app.camera.centerAt(0, 0);
 
     requestAnimationFrame(function render() {
-        world.step(1/60);
+        world.step(1/60, 16, 20);
 
 
         const p = ball.getPosition();
