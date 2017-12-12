@@ -2,7 +2,6 @@ import twgl from './twgl';
 import {mat3, mat4, vec2, vec3, vec4} from 'gl-matrix';
 
 import {gl} from 'gl.js';
-import {arraySetter} from 'util';
 
 const POSITION_COMPONENTS = 2;
 const SIZE_COMPONENTS = 2;
@@ -280,96 +279,6 @@ class TilemapTextureBuilder {
 }
 
 
-class LineRenderer {
-
-    constructor(opts) {
-
-        const {game, maxLines} = {
-            maxLines: 32768,
-            ...opts
-        };
-
-        this.game = game;
-        this.maxLines = maxLines;
-
-        this.programInfo = this.game.getProgram('lines');
-
-        this.setup();
-    }
-
-    setup() {
-        this.bufferInfo = twgl.createBufferInfoFromArrays(gl, {
-            position: {
-                numComponents: 2,
-                drawType: gl.DYNAMIC_DRAW
-            },
-            translation: {
-                numComponents: 2,
-                drawType: gl.DYNAMIC_DRAW
-            }
-        });
-
-        this.arrays = {
-            position: new Float32Array(2 * 2 * this.maxLines)
-        };
-
-        this.vao = twgl.createVertexArrayInfo(gl, this.programInfo, this.bufferInfo);
-        twgl.setBuffersAndAttributes(gl, this.programInfo, this.vao);
-    }
-
-    render(lines, color = [1, 1, 1, 1]) {
-        // copy data from lines to this.arrays.position
-        this.arrays.position.set(lines);
-
-        //gl.enable(gl.LINES);
-
-        gl.useProgram(this.programInfo.program);
-
-        twgl.setUniforms(this.programInfo, {
-            projection: this.game.viewMatrix,
-            color: color
-        });
-
-        twgl.setAttribInfoBufferFromArray(
-            gl,
-            this.bufferInfo.attribs.position,
-            this.arrays.position
-        );
-
-        twgl.setBuffersAndAttributes(gl, this.programInfo, this.vao);
-        twgl.drawBufferInfo(gl, this.vao, gl.LINES, lines.length / 2);
-    }
-
-    renderPolygons(polygons, color = [1, 1, 1, 1]) {
-        const setter = arraySetter(this.arrays.position);
-
-        let lineCount = 0;
-        polygons.forEach(polygon => {
-            setter(polygon.vertices[0]);
-            polygon.vertices.slice(1).forEach(vtx => setter(vtx.concat(vtx)));
-            setter(polygon.vertices[0]);
-            lineCount += polygon.vertices.length;
-        });
-
-        twgl.setAttribInfoBufferFromArray(
-            gl,
-            this.bufferInfo.attribs.position,
-            this.arrays.position
-        );
-
-        gl.useProgram(this.programInfo.program);
-
-        twgl.setUniforms(this.programInfo, {
-            projection: this.game.viewMatrix,
-            color: color
-        });
-
-        twgl.setBuffersAndAttributes(gl, this.programInfo, this.vao);
-        twgl.drawBufferInfo(gl, this.vao, gl.LINES, lineCount * 2);
-    }
-}
-
-
 const CoordinateConversions = {
     canvasToWorldMatrix(viewMatrix, displaySize, virtualSize) {
         const acc = mat4.create();
@@ -440,6 +349,5 @@ class Camera {
 export {
     TilemapTextureBuilder,
     GridOutline,
-    LineRenderer,
     CoordinateConversions,
     Camera};
