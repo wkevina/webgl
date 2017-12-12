@@ -193,15 +193,15 @@ ground.createFixture(pl.Chain([
     world.createJoint(pl.RevoluteJoint({collideConnected: false, localAnchorA: Vec2(3, 0), localAnchorB: Vec2(-0.5, 0)}, ball, c.segments[0]));
     world.createJoint(pl.RevoluteJoint({collideConnected: false, localAnchorA: Vec2(0.5, 0), localAnchorB: Vec2(0, 0)}, c.segments[c.segments.length - 1], ground));
 
-    let segmentA = worldCreateBody().setDynamic();
-    segmentA.createFixture(pl.Box(1, 0.1));
-
-    let segmentB = worldCreateBody().setDynamic();
-    segmentB.createFixture(pl.Box(1, 0.1));
-
-    world.createJoin(
-        pl.WeldJoint(undefined, )
-    )
+    // let segmentA = worldCreateBody().setDynamic();
+    // segmentA.createFixture(pl.Box(1, 0.1));
+    //
+    // let segmentB = worldCreateBody().setDynamic();
+    // segmentB.createFixture(pl.Box(1, 0.1));
+    //
+    // world.createJoin(
+    //     pl.WeldJoint(undefined, )
+    // )
 })();
 
 
