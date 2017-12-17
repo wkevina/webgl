@@ -11,7 +11,8 @@ const demos = [
     {title: 'Particle Demo', name: 'particle'},
     {title: 'Lines Demo', name: 'lines'},
     {title: 'Physics Demo', name: 'physics'},
-    {title: 'Pixel Editor', name: 'pixel'}
+    {title: 'Pixel Editor', name: 'pixel'},
+    {tile: 'Game', name: 'game'}
 ];
 
 function demoConfig(demo) {
@@ -41,7 +42,8 @@ module.exports = {
         particle: './src/demo/particle.js',
         lines: './src/demo/lines.js',
         physics: './src/demo/physics.js',
-        pixel: './src/demo/pixel.js'
+        pixel: './src/demo/pixel.js',
+        game: './src/demo/game.js'
     },
     devtool: 'source-map',
     devServer: {

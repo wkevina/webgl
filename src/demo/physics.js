@@ -2,7 +2,7 @@ import {mat3, vec3, vec2} from 'gl-matrix';
 import pl, {Vec2} from 'planck-js';
 
 import {App, initCanvas} from '../js/app.js';
-import {GridOutline} from '../js/graphics.js';
+import {Grid} from '../js/graphics/Grid.js';
 import {MouseDrawing, CameraPan} from '../js/controls.js';
 
 import {SpriteRenderer} from "../js/graphics/SpriteRenderer";
@@ -115,17 +115,18 @@ function bodyChain(options) {
     }
 
     const jointDef = {
-        localAnchorA: Vec2(segmentLength / 2, 0),
-        localAnchorB: Vec2(-segmentLength / 2, 0),
+        localAnchorA: Vec2(segmentLength * 3 / 8, 0),
+        localAnchorB: Vec2(-segmentLength * 3 / 8, 0),
         frequency: 0,
-        dampingRatio: 0
+        dampingRatio: 0,
+        maxLength: segmentLength/4
     };
 
     for (let i = 1; i < segments.length; i++) {
         const segA = segments[i - 1];
         const segB = segments[i];
 
-        joints.push(world.createJoint(pl.DistanceJoint(jointDef, segA, Vec2(0.25, 0), segB, Vec2(0, 0))));
+        joints.push(world.createJoint(pl.RopeJoint(jointDef, segA, segB)));
     }
 
     return {
@@ -188,22 +189,26 @@ ground.createFixture(pl.Chain([
         I: 1
     });
 
-    const c = bodyChain({endpointA: Vec2(0, 0), endpointB: Vec2(0, 0), chainLength: 10, segmentLength: 1});
+    const c = bodyChain({endpointA: Vec2(0, 0), endpointB: Vec2(0, 0), chainLength: 20, segmentLength: 1});
 
     world.createJoint(pl.RevoluteJoint({collideConnected: false, localAnchorA: Vec2(3, 0), localAnchorB: Vec2(-0.5, 0)}, ball, c.segments[0]));
     world.createJoint(pl.RevoluteJoint({collideConnected: false, localAnchorA: Vec2(0.5, 0), localAnchorB: Vec2(0, 0)}, c.segments[c.segments.length - 1], ground));
-
-    // let segmentA = worldCreateBody().setDynamic();
-    // segmentA.createFixture(pl.Box(1, 0.1));
-    //
-    // let segmentB = worldCreateBody().setDynamic();
-    // segmentB.createFixture(pl.Box(1, 0.1));
-    //
-    // world.createJoin(
-    //     pl.WeldJoint(undefined, )
-    // )
 })();
 
+/*
+
+on mouse down {
+  if mouse is over body
+    create mouse joint to control body
+    on mouse up {
+      destroy mouse join
+    }
+  else {
+    pan camera in sync with cursor
+  }
+}
+
+ */
 
 async function run() {
     await app.loader.loading;

@@ -1,18 +1,24 @@
 import twgl from '../twgl';
+import {gl} from '../gl';
 
 import vs from '../../shaders/atlas.vert';
 import fs from '../../shaders/atlas.frag';
 
+let sharedProgram;
+
 class SpriteAtlasRenderer {
-    constructor(options) {
-        this.game = options.game;
-        this.gl = this.game.gl;
+    constructor(options = {}) {
+        this.gl = gl;
         this.atlas = options.atlas;
         this.setup();
     }
 
     setup() {
-        this.programInfo = twgl.createProgramInfo(this.gl, [vs, fs]);
+        if (!sharedProgram) {
+            sharedProgram = twgl.createProgramInfo(this.gl, [vs, fs]);
+        }
+        this.programInfo = sharedProgram;
+
 
         this._arrays = {
             vertex: {
@@ -88,7 +94,7 @@ class SpriteAtlasRenderer {
         this.vao = twgl.createVertexArrayInfo(this.gl, this.programInfo, this.bufferInfo);
     }
 
-    renderLayer(layer = 0, position = [0, 0], offset = [0, 0], angle = 0) {
+    renderLayer(graphicsState, layer = 0, position = [0, 0], offset = [0, 0], angle = 0) {
         twgl.setAttribInfoBufferFromArray(
             this.gl,
             this.bufferInfo.attribs.position,
@@ -128,7 +134,7 @@ class SpriteAtlasRenderer {
         this.gl.useProgram(this.programInfo.program);
 
         twgl.setUniforms(this.programInfo, {
-            projection: this.game.viewMatrix,
+            projection: graphicsState.viewProjectionMatrix,
             texture: this.atlas.texture
         });
 
@@ -136,7 +142,7 @@ class SpriteAtlasRenderer {
         twgl.drawBufferInfo(this.gl, this.vao, this.gl.TRIANGLE_STRIP, undefined, undefined, 1);
     }
 
-    render(sprites) {
+    render(sprites, projection) {
         const position = new Float32Array(2 * sprites.length);
         const size = new Float32Array(2 * sprites.length);
         const offset = new Float32Array(2 * sprites.length);
@@ -151,7 +157,7 @@ class SpriteAtlasRenderer {
                 position[spriteIndex * 2 + compIndex] = v;
             });
 
-            coords.rect.slice(2).forEach((v, compIndex) => {
+            (sprite.size || coords.rect.slice(2)).forEach((v, compIndex) => {
                 size[spriteIndex * 2 + compIndex] = v;
             });
 
@@ -207,12 +213,16 @@ class SpriteAtlasRenderer {
         this.gl.useProgram(this.programInfo.program);
 
         twgl.setUniforms(this.programInfo, {
-            projection: this.game.viewMatrix,
+            projection: projection,
             texture: this.atlas.texture
         });
 
         twgl.setBuffersAndAttributes(this.gl, this.programInfo, this.vao);
         twgl.drawBufferInfo(this.gl, this.vao, this.gl.TRIANGLE_STRIP, undefined, undefined, sprites.length);
+    }
+
+    setAtlas(atlas) {
+        this.atlas = atlas;
     }
 }
 

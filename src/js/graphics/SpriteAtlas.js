@@ -79,7 +79,7 @@ class SpriteAtlas {
                 width: img.width,
                 height: img.height
             };
-            imageData = img.data;
+            imageData = img;
         } else {
             srcRect = subregion;
             imageData = img.getImageData(srcRect.x, srcRect.y, srcRect.width, srcRect.height);

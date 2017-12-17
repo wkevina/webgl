@@ -1,9 +1,12 @@
 import {Loader} from 'resource.js';
-import {CoordinateConversions, Camera} from 'graphics.js';
+import {CoordinateConversions} from 'graphics.js';
 import {mat3, mat4} from 'gl-matrix';
 import {registerContext, gl} from 'gl.js';
 import {attachFramebuffer} from 'util.js';
 import 'vendor/webgl-debug.js'
+import {Sprite} from './graphics/Sprite';
+import {SpriteRenderer} from './graphics/SpriteRenderer'
+import {Camera} from "./graphics/Camera";
 
 //import * as glMatrix from 'gl-matrix';
 
@@ -41,7 +44,7 @@ const initCanvas = (containerId, canvasClass) => {
 class App {
     constructor(options) {
         this.clearColor = options.clearColor || [0.4, 0.4, 0.4, 1];
-        this.resolution = options.resolution || { width: 352, height: 224 };
+        this.resolution = options.resolution || {width: 352, height: 224};
         this.pixelMultiplier = options.pixelMultiplier || 2;
         this.debug = options.debug;
 
@@ -65,6 +68,13 @@ class App {
         gl.enable(gl.BLEND);
 
         this.framebuffer = attachFramebuffer(gl, this.resolution.width, this.resolution.height);
+        this.framebufferRenderer = new SpriteRenderer({
+            game: this,
+            textureInfo: {
+                texture: this.framebuffer.texture,
+                ...this.resolution
+            }
+        });
         this.loader = new Loader();
         this.projection = mat4.ortho(mat4.create(), 0, this.resolution.width, 0, this.resolution.height, -1, 1);
         this.camera = new Camera(this.resolution);
@@ -94,7 +104,7 @@ class App {
 
         this._canvasToWorld = CoordinateConversions.canvasToWorldMatrix(
             this.camera.matrix,
-            { width: canvas_width, height: canvas_height },
+            {width: canvas_width, height: canvas_height},
             this.resolution
         );
     }
@@ -136,6 +146,69 @@ class App {
             camera = this.camera.matrix;
         }
         return mat4.multiply(mat4.create(), this.projection, camera);
+    }
+
+    beginRenderToTexture() {
+        this.framebuffer.attach();
+        this.clear();
+    }
+
+    endRenderToTexture() {
+        this.framebuffer.detach();
+        this.adjustViewport();
+    }
+
+    start() {
+        let timestamp;
+
+        const update = time => {
+            if (!timestamp) {
+                timestamp = time;
+            }
+
+            let dt = time - timestamp;
+            timestamp = time;
+            //this.framebuffer.attach();
+
+            if (this.stage) {
+                this.stage.prerender(dt);
+
+                this.beginRenderToTexture();
+
+                this.stage.render(dt);
+
+                this.stage.postrender(dt);
+
+                this.endRenderToTexture();
+
+                this.clear();
+
+                this.framebufferRenderer.render(
+                    [new Sprite({
+                        position: [0, 0],
+                        size: [this.resolution.width, this.resolution.height]
+                    })],
+                    this.projection
+                );
+
+                // possible post fullscreen render hook here
+            }
+
+            if (this.running) {
+                requestAnimationFrame(update);
+            }
+        };
+
+        if (!this.running) {
+            requestAnimationFrame(update);
+            this.running = true;
+        }
+    }
+
+    setStage(stage) {
+        this.stage = stage;
+        stage.app = this;
+        stage.init(this);
     }
 }
 

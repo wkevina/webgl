@@ -253,5 +253,6 @@ class CameraBodyTracker {
 export {
     CameraPan,
     CameraBodyTracker,
-    MouseDrawing
+    MouseDrawing,
+    Keyboard
 };

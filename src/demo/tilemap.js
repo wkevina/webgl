@@ -1,4 +1,4 @@
-import {TilemapTextureBuilder, GridOutline} from '../js/graphics.js';
+import {TilemapTextureBuilder} from '../js/graphics.js';
 import {Sprite} from '../js/graphics/Sprite.js';
 import {loadImage} from '../js/util.js';
 import '../css/app.css'
@@ -7,6 +7,7 @@ import App from 'app.js';
 import {TilemapRenderer} from "../js/graphics/TilemapRenderer";
 import {SpriteRenderer} from "../js/graphics/SpriteRenderer";
 import {CameraPan} from '../js/controls';
+import {Grid} from "../js/graphics/Grid";
 
 
 const mountPoint = document.getElementById('content');
@@ -88,7 +89,7 @@ async function run() {
         }
     });
 
-    const grid = new GridOutline(app);
+    const grid = new Grid(app);
     grid.addGrid(16, 16, [1, 1, 1, 0.5], 1);
 
     requestAnimationFrame(function render() {

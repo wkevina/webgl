@@ -3,7 +3,7 @@ export {Sprite};
 class Sprite {
     constructor(options) {
         this.position = options.position || [0, 0];
-        this.size = options.size || [8, 8];
+        this.size = options.size;// || [8, 8];
         // default angle is 0 radians
         this.angle = 0;
         // default is offset sets the sprite's bottom left corner at position

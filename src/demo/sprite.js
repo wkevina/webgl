@@ -1,6 +1,6 @@
 import _ from 'underscore';
 
-import {GridOutline} from '../js/graphics';
+import {Grid} from '../js/graphics/Grid';
 import {SpriteRenderer} from '../js/graphics/SpriteRenderer';
 import {SpriteAtlas, detectSpriteBounds} from '../js/graphics/SpriteAtlas';
 import {SpriteAtlasRenderer} from '../js/graphics/SpriteAtlasRenderer';
@@ -87,29 +87,12 @@ async function run() {
         }
     });
 
-    const grid = new GridOutline(app);
+    const grid = new Grid(app);
     // grid.addGrid( 8,  8, [0.4, 0.1, 0.9, 0.4], 0.25);
     // grid.addGrid(16, 16, [0.1, 0.3, 0.9, 0.4], 0.5);
     //grid.addGrid(32, 32, [1, 1, 1, 1], 0.5);
 
     const sprites = [];
-    // for (let i = 0; (i < app.resolution.width / 32); ++i) {
-    //     for (let j = 0; j < (app.resolution.height / 32); ++j) {
-    //         sprites.push(new Sprite([i * 32 + 10, j * 32 + 10], [20, 40]));
-    //         break;
-    //     }
-    //     break;
-    // }
-
-    // _.range(10).forEach(() => {
-    //    const sprite = new Sprite({
-    //        position: [Math.random() * app.resolution.width, Math.random() * app.resolution.height],
-    //        textureName: `pk_${Math.floor(Math.random() * 10)}`,
-    //        angle: Math.random() * Math.PI
-    //    });
-    //
-    //     sprites.push(sprite);
-    // });
 
     const plague_knight = new Sprite({
         position: [160, 112],

@@ -1,4 +1,4 @@
-import {GridOutline} from '../js/graphics.js';
+import {Grid} from '../js/graphics/Grid.js';
 import {MouseListener} from '../js/input.js';
 import {Sprite} from '../js/graphics/Sprite.js';
 import {mat3, vec3} from 'gl-matrix';
@@ -159,7 +159,7 @@ async function run() {
 
     //startDrawing(lineData);
 
-    const grid = new GridOutline(app);
+    const grid = new Grid(app);
     grid.addGrid( 8,  8, [0.4, 0.1, 0.9, 0.4], 1);
     //grid.addGrid(16, 16, [0.1, 0.3, 0.9, 0.4], 1);
     //grid.addGrid(32, 32, [0,   0.5, 0.9, 0.3], 1);

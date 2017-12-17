@@ -1,5 +1,5 @@
 import {Sprite} from '../js/graphics/Sprite';
-import {GridOutline} from '../js/graphics';
+import {Grid} from '../js/graphics/Grid';
 import {ParticleSystem} from '../js/particle';
 import App from '../js/app';
 import '../css/app.css';
