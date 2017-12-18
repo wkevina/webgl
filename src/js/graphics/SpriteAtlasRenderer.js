@@ -151,13 +151,14 @@ class SpriteAtlasRenderer {
         const angle = new Float32Array(sprites.length);
 
         sprites.forEach((sprite, spriteIndex) => {
-            const coords = this.atlas.getAtlasCoordinates(sprite.textureName);
+
+            const textureRegion = sprite.textureRegion || this.atlas.coordinatesForName(sprite.textureName);
 
             sprite.position.forEach((v, compIndex) => {
                 position[spriteIndex * 2 + compIndex] = v;
             });
 
-            (sprite.size || coords.rect.slice(2)).forEach((v, compIndex) => {
+            (sprite.size || [textureRegion.width, textureRegion.height]).forEach((v, compIndex) => {
                 size[spriteIndex * 2 + compIndex] = v;
             });
 
@@ -165,11 +166,11 @@ class SpriteAtlasRenderer {
                 offset[spriteIndex * 2 + compIndex] = v;
             });
 
-            coords.rect.forEach((v, compIndex) => {
+            [textureRegion.x, textureRegion.y, textureRegion.width, textureRegion.height].forEach((v, compIndex) => {
                 texture_rect[spriteIndex * 4 + compIndex] = v;
             });
 
-            layer[spriteIndex] = coords.layer;
+            layer[spriteIndex] = textureRegion.layer;
 
             angle[spriteIndex] = sprite.angle;
         });

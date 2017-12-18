@@ -14,8 +14,8 @@ const run = async () => {
         debug: false,
         clearColor: [0.0, 1.0, 1.0, 1],
         resolution: {
-            width: 480,
-            height: 270
+            width: 400,
+            height: 224
         },
         pixelMultiplier: 2
     });
@@ -23,13 +23,8 @@ const run = async () => {
     const atlas = new SpriteAtlas(undefined, undefined, 2);
 
     {
-        const img = await createImageBitmap(await loadImage('img/background0.png'));
-        atlas.add(img, 'background0');
-    }
-
-    {
-        const img = await createImageBitmap(await loadImage('img/background1.png'));
-        atlas.add(img, 'background1');
+        const img = await createImageBitmap(await loadImage('img/sky_0.png'));
+        atlas.add(img, 'sky_0');
     }
 
     app.setStage(new class extends Stage {
@@ -64,27 +59,16 @@ const run = async () => {
             this.addScene(scene);
 
             scene.addLayer(new BackgroundLayer({
-                imageID: 'background0',
-                width: 320,
-                height: 240,
-                fixed: true
+                atlas: atlas,
+                fixed: false,
+                imageMap: {
+                    'sky_0': {
+                        x: 0, y: 0
+                    }
+                }
             }));
 
-            scene.addLayer(new BackgroundLayer({
-                imageID: 'background1',
-                width: 320,
-                height: 240,
-                fixed: false,
-                parallax: [0.5, 0.1]
-            }));
 
-            scene.addLayer(new BackgroundLayer({
-                imageID: 'background1',
-                width: 320,
-                height: 240,
-                fixed: false,
-                parallax: [1, 0.2]
-            }));
         }
     });
 

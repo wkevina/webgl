@@ -60,7 +60,13 @@ class SpriteAtlas {
             }
         }
 
-        const out = {width, height, ...this.packingParams};
+        const out = {
+            width,
+            height,
+            x: this.packingParams.x,
+            y: this.packingParams.y,
+            layer: this.packingParams.layer
+        };
 
         this.packingParams.nextY = Math.max(this.packingParams.nextY, this.packingParams.y + height);
         this.packingParams.x += width;
@@ -85,7 +91,7 @@ class SpriteAtlas {
             imageData = img.getImageData(srcRect.x, srcRect.y, srcRect.width, srcRect.height);
         }
 
-        const destRect = this.fit(srcRect);
+        const textureRegion = this.fit(srcRect);
 
         gl.bindTexture(gl.TEXTURE_2D_ARRAY, this.texture);
 
@@ -94,11 +100,11 @@ class SpriteAtlas {
         gl.texSubImage3D(
             gl.TEXTURE_2D_ARRAY, // target
             0,                   // mipmap level, always zero
-            destRect.x,  // xoffset
-            destRect.y, // yoffset
-            destRect.layer,                   // zoffset
-            destRect.width,      // width
-            destRect.height,     // height
+            textureRegion.x,  // xoffset
+            textureRegion.y, // yoffset
+            textureRegion.layer,                   // zoffset
+            textureRegion.width,      // width
+            textureRegion.height,     // height
             1,                   // depth
             gl.RGBA,             // format, guaranteed by ImageData to be RGBA
             gl.UNSIGNED_BYTE,    // type, guaranteed by ImageData to be Uint8ClampedArray, i.e. UNSIGNED_BYTE
@@ -107,8 +113,8 @@ class SpriteAtlas {
 
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 0);
 
-        this.map.set(name, destRect);
-        this.entries.push([name, destRect]);
+        this.map.set(name, textureRegion);
+        this.entries.push([name, textureRegion]);
     }
 
     readback(limit) {
@@ -120,7 +126,6 @@ class SpriteAtlas {
         gl.bindFramebuffer(gl.READ_FRAMEBUFFER, fb);
 
         gl.pixelStorei(gl.PACK_FLIP_Y_WEBGL, 1);
-
 
         for (let layer = 0; layer < Math.min(this.depth, limit); layer++) {
             gl.framebufferTextureLayer(gl.READ_FRAMEBUFFER, gl.COLOR_ATTACHMENT0, this.texture, 0, layer);
@@ -155,13 +160,12 @@ class SpriteAtlas {
         });
     }
 
-    getAtlasCoordinates(name) {
-        const coords = this.map.get(name);
-
-        return {
-            rect: [coords.x, coords.y, coords.width, coords.height],
-            layer: coords.layer
+    coordinatesForName(name) {
+        if (this.map.has(name)) {
+            return Object.assign({}, this.map.get(name));
         }
+
+        throw `Invalid name '${name}' for SpriteAtlas`;
     }
 }
 

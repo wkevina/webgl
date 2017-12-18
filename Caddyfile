@@ -1,0 +1,5 @@
+*:2015 { 
+tls off
+
+proxy / localhost:8080
+}
