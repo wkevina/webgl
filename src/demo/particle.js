@@ -185,12 +185,15 @@ async function run() {
 
         app.adjustViewport();
 
-        framebufferRenderer.render([
-            new Sprite({
-                position: [0, 0],
-                size: [app.resolution.width, app.resolution.height]
-            })
-        ]);
+        framebufferRenderer.render(
+            [
+                new Sprite({
+                    position: [0, 0],
+                    size: [app.resolution.width, app.resolution.height]
+                })
+            ],
+            app.projection
+        );
 
         if (!app.debug) {
             requestAnimationFrame(render);

@@ -12,7 +12,7 @@ const demos = [
     {title: 'Lines Demo', name: 'lines'},
     {title: 'Physics Demo', name: 'physics'},
     {title: 'Pixel Editor', name: 'pixel'},
-    {tile: 'Game', name: 'game'}
+    {title: 'Game', name: 'game'}
 ];
 
 function demoConfig(demo) {
@@ -105,11 +105,6 @@ module.exports = {
             inject: false,
             mobile: true
         }),
-        // new webpack.optimize.CommonsChunkPlugin({name: 'common', minChunks: 2}),
-        // new webpack.optimize.CommonsChunkPlugin({
-        //     name: 'vendor',
-        //     minChunks: ({resource}) => resource && resource.includes('node_modules') && resource.match(/\.js$/)
-        // }),
         ...demos.map(demoConfig)
     ]
 };
