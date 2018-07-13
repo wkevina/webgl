@@ -105,12 +105,11 @@ module.exports = {
             inject: false,
             mobile: true
         }),
-        new webpack.optimize.CommonsChunkPlugin({name: 'common', minChunks: 2}),
-        new webpack.optimize.CommonsChunkPlugin({
-            name: 'vendor',
-            minChunks: ({resource}) => resource && resource.includes('node_modules') && resource.match(/\.js$/)
-        }),
+        // new webpack.optimize.CommonsChunkPlugin({name: 'common', minChunks: 2}),
+        // new webpack.optimize.CommonsChunkPlugin({
+        //     name: 'vendor',
+        //     minChunks: ({resource}) => resource && resource.includes('node_modules') && resource.match(/\.js$/)
+        // }),
         ...demos.map(demoConfig)
-        //new BundleAnalyzerPlugin({analyzerMode: 'static'})
     ]
 };
